@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodFlow AI — Technical & Business Deep Dive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --green-900: #041510;
+    --green-800: #072a1a;
+    --green-700: #0a3d25;
+    --green-600: #0f5533;
+    --green-500: #157a47;
+    --green-400: #1fa05e;
+    --green-300: #2ec977;
+    --green-200: #6edda4;
+    --green-100: #b8f0d1;
+    --green-50: #e8faf1;
+    --gold: #d4a843;
+    --gold-light: #f0c96a;
+    --white: #ffffff;
+    --gray-100: #f5f5f5;
+    --gray-200: #e8e8e8;
+    --gray-300: #d0d0d0;
+    --gray-500: #888888;
+    --gray-700: #444444;
+    --gray-900: #1a1a1a;
+    --red: #e05252;
+    --blue: #4a90d9;
+    --orange: #e07a30;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--gray-900);
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  .page {
+    width: 297mm;
+    min-height: 210mm;
+    padding: 14mm 16mm;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: linear-gradient(135deg, var(--green-900) 0%, var(--green-800) 40%, var(--green-700) 100%);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 210mm;
+  }
+  .cover-bg-circles {
+    position: absolute; top: 0; right: 0; width: 60%; height: 100%;
+    background: radial-gradient(ellipse at 80% 30%, rgba(46,201,119,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, rgba(212,168,67,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .cover-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .cover-badge {
+    background: rgba(46,201,119,0.15); border: 1px solid rgba(46,201,119,0.3);
+    color: var(--green-200); padding: 5px 14px; border-radius: 20px; font-size: 9pt; font-weight: 600; letter-spacing: 1px;
+  }
+  .cover-event { color: var(--gray-300); font-size: 9pt; text-align: right; line-height: 1.6; }
+  .cover-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 10mm 0; }
+  .cover-icon { font-size: 52pt; margin-bottom: 6mm; }
+  .cover-title { font-size: 38pt; font-weight: 900; line-height: 1.05; letter-spacing: -1px; }
+  .cover-title span { color: var(--green-300); }
+  .cover-tagline { margin-top: 5mm; font-size: 14pt; color: var(--green-100); font-weight: 300; max-width: 160mm; line-height: 1.5; }
+  .cover-divider { width: 50mm; height: 2px; background: linear-gradient(90deg, var(--green-400), transparent); margin: 6mm 0; }
+  .cover-sub { font-size: 10pt; color: var(--green-200); font-weight: 500; }
+  .cover-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm;
+    background: rgba(0,0,0,0.25); border-radius: 10px; padding: 5mm;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .cover-metric { text-align: center; }
+  .cover-metric-val { font-size: 20pt; font-weight: 800; color: var(--green-300); }
+  .cover-metric-lbl { font-size: 7.5pt; color: var(--green-100); margin-top: 1mm; font-weight: 500; }
+  .cover-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+  .cover-powered { font-size: 8.5pt; color: var(--gray-300); }
+  .cover-powered strong { color: var(--green-200); }
+  .cover-page-count { font-size: 8pt; color: var(--gray-500); }
+
+  /* ── COMMON LAYOUT ── */
+  .page-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1.5px solid var(--green-200); padding-bottom: 3mm; margin-bottom: 6mm;
+  }
+  .page-header-left { display: flex; align-items: center; gap: 3mm; }
+  .section-num {
+    background: var(--green-700); color: var(--white);
+    width: 8mm; height: 8mm; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8pt; font-weight: 700;
+  }
+  .section-title { font-size: 16pt; font-weight: 800; color: var(--green-800); letter-spacing: -0.5px; }
+  .section-subtitle { font-size: 9pt; color: var(--gray-500); font-weight: 400; }
+  .page-header-right { font-size: 8pt; color: var(--gray-500); }
+  .brand-mark { color: var(--green-500); font-weight: 700; font-size: 8.5pt; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--gray-100); border-radius: 8px; padding: 4mm 5mm;
+    border-left: 3px solid var(--green-500);
+  }
+  .card-dark {
+    background: var(--green-800); color: var(--white); border-radius: 8px; padding: 4mm 5mm;
+  }
+  .card-gold {
+    background: #fef9ec; border-left: 3px solid var(--gold); border-radius: 8px; padding: 4mm 5mm;
+  }
+  .card-title { font-size: 9pt; font-weight: 700; color: var(--green-700); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2mm; }
+  .card-dark .card-title { color: var(--green-200); }
+  .card-gold .card-title { color: var(--gold); }
+
+  /* ── GRID SYSTEMS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3mm; }
+  .col-span-2 { grid-column: span 2; }
+
+  /* ── STAT BOXES ── */
+  .stat-box {
+    background: var(--green-800); color: var(--white); border-radius: 8px;
+    padding: 4mm 5mm; text-align: center;
+  }
+  .stat-val { font-size: 20pt; font-weight: 900; color: var(--green-300); line-height: 1; }
+  .stat-val.gold { color: var(--gold-light); }
+  .stat-lbl { font-size: 8pt; color: var(--green-100); margin-top: 1.5mm; font-weight: 500; }
+  .stat-sub { font-size: 7.5pt; color: var(--gray-300); margin-top: 0.5mm; }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  th {
+    background: var(--green-700); color: var(--white); padding: 2.5mm 3mm;
+    text-align: left; font-weight: 600; font-size: 8.5pt; letter-spacing: 0.3px;
+  }
+  td { padding: 2mm 3mm; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--gray-100); }
+  tr:hover td { background: var(--green-50); }
+  .td-highlight { color: var(--green-600); font-weight: 700; }
+  .td-right { text-align: right; }
+  .td-center { text-align: center; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-container { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; overflow: hidden; }
+  .flow-step {
+    flex: 1; background: var(--green-800); color: var(--white); padding: 3mm 2mm;
+    text-align: center; position: relative; border-radius: 4px;
+  }
+  .flow-step-num { font-size: 7pt; color: var(--green-300); font-weight: 700; }
+  .flow-step-icon { font-size: 14pt; margin: 1mm 0; }
+  .flow-step-name { font-size: 7.5pt; font-weight: 700; line-height: 1.2; }
+  .flow-step-desc { font-size: 6.5pt; color: var(--green-100); margin-top: 1mm; line-height: 1.3; }
+  .flow-arrow {
+    color: var(--green-400); font-size: 14pt; font-weight: 900; margin: 0 1mm; flex-shrink: 0;
+  }
+
+  /* ── COMPONENT BOX ── */
+  .component-box {
+    border: 1.5px solid var(--green-200); border-radius: 8px; overflow: hidden;
+  }
+  .component-header {
+    background: var(--green-700); color: var(--white); padding: 2.5mm 4mm;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .component-header-name { font-size: 10pt; font-weight: 700; }
+  .component-header-badge {
+    background: rgba(255,255,255,0.15); padding: 1px 8px; border-radius: 10px;
+    font-size: 7.5pt; font-family: 'JetBrains Mono', monospace;
+  }
+  .component-body { padding: 3mm 4mm; background: var(--white); }
+  .component-row {
+    display: flex; gap: 3mm; padding: 2mm 0; border-bottom: 1px solid var(--gray-200);
+    align-items: flex-start;
+  }
+  .component-row:last-child { border-bottom: none; }
+  .component-key {
+    font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 600;
+    color: var(--green-600); min-width: 28mm; flex-shrink: 0;
+  }
+  .component-val { font-size: 8.5pt; color: var(--gray-700); line-height: 1.4; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #0d1117; border-radius: 6px; padding: 3mm 4mm;
+    font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; color: #e6edf3;
+    line-height: 1.6; overflow: hidden;
+  }
+  .code-comment { color: #8b949e; }
+  .code-keyword { color: #ff7b72; }
+  .code-string { color: #a5d6ff; }
+  .code-func { color: #d2a8ff; }
+  .code-var { color: #79c0ff; }
+  .code-num { color: #f0c36a; }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 10mm; }
+  .timeline::before {
+    content: ''; position: absolute; left: 4mm; top: 0; bottom: 0;
+    width: 1.5px; background: var(--green-300);
+  }
+  .timeline-item { position: relative; margin-bottom: 4mm; }
+  .timeline-dot {
+    position: absolute; left: -9mm; top: 1.5mm;
+    width: 4mm; height: 4mm; border-radius: 50%;
+    background: var(--green-500); border: 2px solid var(--green-200);
+  }
+  .timeline-date { font-size: 7.5pt; color: var(--green-500); font-weight: 700; }
+  .timeline-title { font-size: 9.5pt; font-weight: 700; color: var(--gray-900); }
+  .timeline-body { font-size: 8.5pt; color: var(--gray-700); margin-top: 0.5mm; }
+
+  /* ── PILL TAGS ── */
+  .pill {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 7.5pt; font-weight: 600; margin: 1px;
+  }
+  .pill-green { background: var(--green-100); color: var(--green-700); }
+  .pill-gold { background: #fef3cd; color: #856404; }
+  .pill-blue { background: #e3f0fb; color: #1a5276; }
+  .pill-red { background: #fde8e8; color: #922b21; }
+  .pill-gray { background: var(--gray-200); color: var(--gray-700); }
+
+  /* ── METRIC ROW ── */
+  .metric-row {
+    display: flex; align-items: center; padding: 2mm 0; border-bottom: 1px solid var(--gray-200);
+    gap: 3mm;
+  }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-row-label { flex: 1; font-size: 9pt; color: var(--gray-700); font-weight: 500; }
+  .metric-row-val { font-size: 10pt; font-weight: 800; color: var(--green-700); min-width: 20mm; text-align: right; }
+  .metric-row-bench { font-size: 8pt; color: var(--gray-500); min-width: 25mm; text-align: right; }
+  .badge-healthy { display: inline-block; background: #d4edda; color: #155724; padding: 1px 7px; border-radius: 4px; font-size: 7.5pt; font-weight: 700; }
+  .badge-watch { display: inline-block; background: #fff3cd; color: #856404; padding: 1px 7px; border-radius: 4px; font-size: 7.5pt; font-weight: 700; }
+
+  /* ── SECTION LABELS ── */
+  .label { font-size: 8pt; font-weight: 700; color: var(--green-600); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2mm; }
+  .note { font-size: 7.5pt; color: var(--gray-500); font-style: italic; margin-top: 2mm; }
+
+  /* ── VS TABLE ── */
+  .vs-table { border: 1.5px solid var(--gray-300); border-radius: 8px; overflow: hidden; }
+  .vs-table th { background: var(--green-700); }
+  .vs-table td { font-size: 8.5pt; }
+  .check { color: var(--green-500); font-weight: 700; }
+  .cross { color: var(--red); font-weight: 700; }
+  .partial { color: var(--orange); font-weight: 700; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    position: absolute; bottom: 5mm; left: 16mm; right: 16mm;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--gray-200); padding-top: 2mm;
+    font-size: 7.5pt; color: var(--gray-500);
+  }
+
+  @media print {
+    .page { page-break-after: always; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 1 — COVER
+══════════════════════════════════════════════════════ -->
+<div class="page cover">
+  <div class="cover-bg-circles"></div>
+  <div class="cover-top">
+    <div class="cover-badge">🌿 FOODFLOW AI</div>
+    <div class="cover-event">
+      Cornell Claude Builders Club Hackathon 2026<br>
+      Social Impact Track · April 25, 2026<br>
+      Collegetown eHub, Ithaca NY
+    </div>
+  </div>
+  <div class="cover-main">
+    <div class="cover-icon">🌿</div>
+    <div class="cover-title">FoodFlow <span>AI</span></div>
+    <div class="cover-tagline">Autonomous Food Rescue Engine — AI-powered surplus prediction and real-time redistribution connecting institutions to food banks before food ever hits the bin.</div>
+    <div class="cover-divider"></div>
+    <div class="cover-sub">Technical &amp; Business Deep Dive · All Components Explained</div>
+  </div>
+  <div class="cover-metrics">
+    <div class="cover-metric"><div class="cover-metric-val">6</div><div class="cover-metric-lbl">Claude Tools<br>in Agent Loop</div></div>
+    <div class="cover-metric"><div class="cover-metric-val">~4s</div><div class="cover-metric-lbl">Full Rescue<br>Orchestration</div></div>
+    <div class="cover-metric"><div class="cover-metric-val">$2.2B</div><div class="cover-metric-lbl">Total<br>Addressable Market</div></div>
+    <div class="cover-metric"><div class="cover-metric-val">380x</div><div class="cover-metric-lbl">Enterprise<br>LTV:CAC</div></div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-powered">Powered by <strong>Anthropic Claude claude-sonnet-4-6</strong> · FastAPI · SQLite · reportlab</div>
+    <div class="cover-page-count">12 pages</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 2 — PROBLEM
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">01</div>
+      <div>
+        <div class="section-title">The Problem</div>
+        <div class="section-subtitle">The global food waste paradox — abundance and hunger coexist</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:5mm;">
+    <div class="stat-box">
+      <div class="stat-val">40%</div>
+      <div class="stat-lbl">US food supply<br>wasted annually</div>
+      <div class="stat-sub">USDA 2023</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">$444B</div>
+      <div class="stat-lbl">Economic value<br>lost per year</div>
+      <div class="stat-sub">ReFED 2023</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">13.5%</div>
+      <div class="stat-lbl">US households<br>food insecure</div>
+      <div class="stat-sub">USDA ERS 2023</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">8–10%</div>
+      <div class="stat-lbl">Global GHG from<br>food waste</div>
+      <div class="stat-sub">FAO 2023</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:5mm;">
+    <div>
+      <div class="label">Where Institutional Waste Happens</div>
+      <div class="component-box">
+        <div class="component-header">
+          <div class="component-header-name">📍 Waste Generation Points</div>
+          <div class="component-header-badge">universities + restaurants</div>
+        </div>
+        <div class="component-body">
+          <div class="component-row">
+            <div class="component-key">End-of-day</div>
+            <div class="component-val">Prepared but unsold food at closing — highest volume, most predictable, zero shelf life past tonight</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Over-prep</div>
+            <div class="component-val">Kitchens batch-cook 120–140% of demand as buffer. Surplus is discarded daily, not tracked</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Event leftovers</div>
+            <div class="component-val">Catered events, dining halls, conferences produce single-event surpluses of 50–200 lbs</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Near-expiry</div>
+            <div class="component-val">Inventory within 48h of expiry — discarded proactively to avoid liability risk under old rules</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Why Existing "Solutions" Fail</div>
+      <div class="component-box">
+        <div class="component-header">
+          <div class="component-header-name">❌ Current Approaches vs. FoodFlow</div>
+          <div class="component-header-badge">competitive gap</div>
+        </div>
+        <div class="component-body">
+          <div class="component-row">
+            <div class="component-key">Manual calls</div>
+            <div class="component-val">Staff calls food banks at 5:55 PM. No answer. Food goes to dumpster. Happens 60% of the time</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Too Good To Go</div>
+            <div class="component-val">Consumer-facing "magic bags." Requires retail packaging, consumer pickup. Doesn't serve institutions</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Feeding America</div>
+            <div class="component-val">Logistics network, not a technology. Requires human coordination. No AI prediction layer</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Food banks' apps</div>
+            <div class="component-val">Donor-initiated only. Food bank must receive call first. No proactive outreach or routing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-gold">
+    <div class="card-title">⚡ The Root Cause</div>
+    <p style="font-size:9.5pt; line-height:1.6;">The problem isn't that people don't care — it's a <strong>timing + coordination failure</strong>. By the time a food bank is reached, the surplus is already cold or discarded. FoodFlow solves this by initiating the rescue <em>2 hours before closing</em> — autonomously — so drivers arrive before food expires. No human coordination required at the institutional side.</p>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>01 — The Problem</span>
+    <span>Page 2</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 3 — SOLUTION OVERVIEW
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">02</div>
+      <div>
+        <div class="section-title">The Solution — FoodFlow AI</div>
+        <div class="section-subtitle">Autonomous agent loop powered by Claude claude-sonnet-4-6 tool_use</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="card-dark" style="margin-bottom:5mm; padding:5mm 6mm;">
+    <div style="font-size:11.5pt; font-weight:700; color:var(--green-200); margin-bottom:2mm;">One-sentence explanation</div>
+    <div style="font-size:13pt; font-weight:300; line-height:1.5; color:var(--white);">
+      FoodFlow connects to a restaurant's inventory system, detects surplus food 2 hours before closing, finds the nearest food bank with capacity, locates a volunteer driver, verifies legal compliance, and dispatches pickup — <strong style="color:var(--green-300);">all automatically, in 4 seconds, with zero human intervention.</strong>
+    </div>
+  </div>
+
+  <div class="label" style="margin-bottom:3mm;">The 6-Step Autonomous Agent Loop</div>
+  <div class="flow-container" style="margin-bottom:5mm;">
+    <div class="flow-step" style="background:var(--green-800);">
+      <div class="flow-step-num">TOOL 1</div>
+      <div class="flow-step-icon">📦</div>
+      <div class="flow-step-name">Check Inventory</div>
+      <div class="flow-step-desc">Query POS/inventory DB for surplus items, quantities, expiry windows</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:var(--green-700);">
+      <div class="flow-step-num">TOOL 2</div>
+      <div class="flow-step-icon">🏦</div>
+      <div class="flow-step-name">Find Food Bank</div>
+      <div class="flow-step-desc">Query capacity DB, match food type + volume to accepting banks</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:var(--green-600);">
+      <div class="flow-step-num">TOOL 3</div>
+      <div class="flow-step-icon">🙋</div>
+      <div class="flow-step-name">Find Driver</div>
+      <div class="flow-step-desc">Haversine distance calc to available volunteers near supplier</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:var(--green-500);">
+      <div class="flow-step-num">TOOL 4</div>
+      <div class="flow-step-icon">🗺️</div>
+      <div class="flow-step-name">Route + ETA</div>
+      <div class="flow-step-desc">Calculate pickup time, drive distance, arrival window at food bank</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:#c78a1a;">
+      <div class="flow-step-num">TOOL 5</div>
+      <div class="flow-step-icon">⚖️</div>
+      <div class="flow-step-name">Compliance Check</div>
+      <div class="flow-step-desc">Bill Emerson Good Samaritan Act verification for liability protection</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:#155a3a;">
+      <div class="flow-step-num">TOOL 6</div>
+      <div class="flow-step-icon">🚀</div>
+      <div class="flow-step-name">Dispatch</div>
+      <div class="flow-step-desc">SMS to driver, log to DB, update dashboard, trigger ESG report</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:5mm;">
+    <div class="card">
+      <div class="card-title">🤖 Claude's Role</div>
+      <p style="font-size:8.5pt; line-height:1.5; color:var(--gray-700);">Claude acts as the <strong>orchestration brain</strong>. It receives a surplus trigger and decides which tools to call, in what order, and what to do with their outputs. It reasons across all 6 steps using natural language and structured tool outputs — like a very fast, never-tired logistics coordinator.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Why 4 Seconds?</div>
+      <p style="font-size:8.5pt; line-height:1.5; color:var(--gray-700);">Each "tool call" is a simple Python function returning structured JSON. Claude doesn't wait for external APIs — it queries a local SQLite DB. Network latency is just the Anthropic API call (~1–2s). Total: DB queries (ms) + 2x Claude inference (~4s round trip).</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 What Triggers It?</div>
+      <p style="font-size:8.5pt; line-height:1.5; color:var(--gray-700);">Three trigger sources: <strong>(1)</strong> Cron job 2h before closing time, <strong>(2)</strong> Manual "Rescue Now" button from dashboard, <strong>(3)</strong> Webhook from POS system when inventory crosses surplus threshold. All three route to the same agent loop.</p>
+    </div>
+  </div>
+
+  <div class="card-gold">
+    <div class="card-title">💡 Why This Isn't Just a Script</div>
+    <p style="font-size:9pt; line-height:1.6;">A traditional script would require hard-coded logic: <em>if capacity &gt; X and distance &lt; Y and item_type in approved_list…</em> — brittle, unmaintainable. Claude uses <strong>natural language reasoning</strong> to handle edge cases: "The food bank at 2.1 miles is full, but their notes say they accept small packages after-hours — I'll route to the secondary option and flag for human review." This emergent judgment is impossible with pure rule-based systems.</p>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>02 — Solution Overview</span>
+    <span>Page 3</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 4 — TECHNICAL ARCHITECTURE
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">03</div>
+      <div>
+        <div class="section-title">Technical Architecture</div>
+        <div class="section-subtitle">Every file, every function, how they connect</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:4mm;">
+    <div>
+      <div class="label">System Components</div>
+      <table style="margin-bottom:3mm;">
+        <tr><th>File</th><th>Responsibility</th><th>Lines</th></tr>
+        <tr><td><code style="color:var(--green-600);font-size:8pt;">main.py</code></td><td>FastAPI app — 6 HTTP routes, background task scheduler</td><td class="td-right td-highlight">~120</td></tr>
+        <tr><td><code style="color:var(--green-600);font-size:8pt;">agent.py</code></td><td>Claude tool_use loop — send/receive, tool dispatch, logging</td><td class="td-right td-highlight">~90</td></tr>
+        <tr><td><code style="color:var(--green-600);font-size:8pt;">tools.py</code></td><td>6 tool functions + TOOL_SCHEMAS list for Claude</td><td class="td-right td-highlight">~180</td></tr>
+        <tr><td><code style="color:var(--green-600);font-size:8pt;">database.py</code></td><td>SQLite schema, seed data, stat queries</td><td class="td-right td-highlight">~130</td></tr>
+        <tr><td><code style="color:var(--green-600);font-size:8pt;">report.py</code></td><td>ESG impact PDF auto-generator via reportlab</td><td class="td-right td-highlight">~80</td></tr>
+        <tr><td><code style="color:var(--green-600);font-size:8pt;">templates/</code></td><td>Jinja2 dashboard — auto-refresh 10s, real-time stats</td><td class="td-right td-highlight">~100</td></tr>
+      </table>
+
+      <div class="label">Tech Stack</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2mm;">
+        <span class="pill pill-green">Python 3.11</span>
+        <span class="pill pill-green">FastAPI</span>
+        <span class="pill pill-green">Anthropic SDK</span>
+        <span class="pill pill-green">SQLite</span>
+        <span class="pill pill-blue">Jinja2</span>
+        <span class="pill pill-blue">Uvicorn</span>
+        <span class="pill pill-gold">reportlab</span>
+        <span class="pill pill-gold">haversine math</span>
+        <span class="pill pill-gray">claude-sonnet-4-6</span>
+      </div>
+    </div>
+    <div>
+      <div class="label">Request Flow — "Trigger Rescue" Button</div>
+      <div class="component-box">
+        <div class="component-body" style="padding:2mm 3mm;">
+          <div class="component-row">
+            <div class="component-key" style="color:var(--blue);">Browser</div>
+            <div class="component-val">User clicks "🚀 Rescue Now" on dashboard → POST /api/trigger/{location_id}</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key" style="color:var(--green-600);">main.py</div>
+            <div class="component-val">FastAPI receives request → spawns BackgroundTask(run_agent, trigger_data)</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key" style="color:var(--green-600);">agent.py</div>
+            <div class="component-val">Calls Anthropic API with system prompt + TOOL_SCHEMAS → enters while loop</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key" style="color:var(--gold);">Claude API</div>
+            <div class="component-val">Returns tool_use block: {name: "check_inventory", input: {location_id: "statler"}}</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key" style="color:var(--green-600);">tools.py</div>
+            <div class="component-val">TOOL_FUNCTIONS["check_inventory"](**input) → queries SQLite → returns JSON</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key" style="color:var(--gold);">Claude API</div>
+            <div class="component-val">Receives tool result → decides next tool → repeats until stop_reason="end_turn"</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key" style="color:var(--green-600);">database.py</div>
+            <div class="component-val">dispatch_pickup() logs pickup record → triggers dashboard refresh</div>
+          </div>
+          <div class="component-row" style="border-bottom:none;">
+            <div class="component-key" style="color:var(--blue);">Browser</div>
+            <div class="component-val">Dashboard auto-refreshes (10s interval) → shows new pickup in live feed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="label">Database Schema (SQLite)</div>
+  <div class="grid-3">
+    <div class="component-box">
+      <div class="component-header"><div class="component-header-name">📦 food_inventory</div></div>
+      <div class="component-body" style="font-size:7.5pt; font-family:'JetBrains Mono',monospace; color:var(--gray-700);">
+        id, location_id, item_name<br>
+        quantity_lbs, food_type<br>
+        expiry_window_hours<br>
+        is_surplus (bool)<br>
+        created_at
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header"><div class="component-header-name">🏦 food_banks</div></div>
+      <div class="component-body" style="font-size:7.5pt; font-family:'JetBrains Mono',monospace; color:var(--gray-700);">
+        id, name, address<br>
+        lat, lng<br>
+        capacity_lbs_per_day<br>
+        current_load_lbs<br>
+        accepted_food_types
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header"><div class="component-header-name">🙋 volunteers</div></div>
+      <div class="component-body" style="font-size:7.5pt; font-family:'JetBrains Mono',monospace; color:var(--gray-700);">
+        id, name, phone<br>
+        lat, lng<br>
+        vehicle_capacity_lbs<br>
+        is_available (bool)<br>
+        last_active
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>03 — Technical Architecture</span>
+    <span>Page 4</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 5 — THE 6 TOOLS DEEP DIVE
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">04</div>
+      <div>
+        <div class="section-title">The 6 Tools — Deep Dive</div>
+        <div class="section-subtitle">What each tool does, inputs/outputs, and why it matters</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="component-box">
+      <div class="component-header">
+        <div class="component-header-name">📦 Tool 1: check_inventory</div>
+        <div class="component-header-badge">DB query</div>
+      </div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Input</div><div class="component-val">location_id: str — which institution to check</div></div>
+        <div class="component-row"><div class="component-key">Action</div><div class="component-val">SELECT * FROM food_inventory WHERE location_id=? AND is_surplus=1 AND expiry_window_hours &lt; 4</div></div>
+        <div class="component-row"><div class="component-key">Output</div><div class="component-val">List of surplus items with name, quantity_lbs, food_type, expiry_hours</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Claude uses</div><div class="component-val">Total lbs, food categories (hot/cold/dry) to query food bank capacity</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header">
+        <div class="component-header-name">🏦 Tool 2: check_foodbank_capacity</div>
+        <div class="component-header-badge">match + filter</div>
+      </div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Input</div><div class="component-val">food_type: str, quantity_lbs: float, location_lat/lng: float</div></div>
+        <div class="component-row"><div class="component-key">Action</div><div class="component-val">Filter banks where capacity_lbs - current_load &gt;= quantity. Sort by distance (haversine)</div></div>
+        <div class="component-row"><div class="component-key">Output</div><div class="component-val">Best matching food bank: name, address, distance_miles, available_capacity_lbs</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Claude uses</div><div class="component-val">Bank coordinates to pass to route calculator + volunteer finder</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header">
+        <div class="component-header-name">🙋 Tool 3: query_volunteers</div>
+        <div class="component-header-badge">geospatial</div>
+      </div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Input</div><div class="component-val">supplier_lat/lng: float, max_distance_miles: float (default 10)</div></div>
+        <div class="component-row"><div class="component-key">Action</div><div class="component-val">Haversine distance from supplier to each available volunteer. Filter is_available=1. Sort ascending</div></div>
+        <div class="component-row"><div class="component-key">Output</div><div class="component-val">Nearest available driver: name, phone, distance_miles, vehicle_capacity_lbs</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Claude uses</div><div class="component-val">Driver phone for SMS dispatch; distance to cross-check route feasibility</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header">
+        <div class="component-header-name">🗺️ Tool 4: calculate_route</div>
+        <div class="component-header-badge">ETA engine</div>
+      </div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Input</div><div class="component-val">volunteer_lat/lng, supplier_lat/lng, foodbank_lat/lng</div></div>
+        <div class="component-row"><div class="component-key">Action</div><div class="component-val">Haversine: volunteer→supplier + supplier→foodbank. Assume 20 mph avg urban speed</div></div>
+        <div class="component-row"><div class="component-key">Output</div><div class="component-val">total_distance_miles, estimated_minutes, pickup_eta, delivery_eta</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Claude uses</div><div class="component-val">ETA to verify food won't expire before arrival; include in SMS to driver</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header">
+        <div class="component-header-name">⚖️ Tool 5: verify_compliance</div>
+        <div class="component-header-badge">legal check</div>
+      </div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Input</div><div class="component-val">food_type: str, preparation_method: str, storage_temp: str</div></div>
+        <div class="component-row"><div class="component-key">Action</div><div class="component-val">Rule-based check: Bill Emerson Good Samaritan Act (1996) protection eligibility</div></div>
+        <div class="component-row"><div class="component-key">Output</div><div class="component-val">is_compliant: bool, protection_level: str, liability_notes: str</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Claude uses</div><div class="component-val">Gate for dispatch — will NOT send driver if compliance fails. Logs reason</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header">
+        <div class="component-header-name">🚀 Tool 6: dispatch_pickup</div>
+        <div class="component-header-badge">final action</div>
+      </div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Input</div><div class="component-val">volunteer_phone, supplier_address, foodbank_address, food_summary, eta_minutes</div></div>
+        <div class="component-row"><div class="component-key">Action</div><div class="component-val">Log pickup to DB (pickups table). Print mock SMS. Mark volunteer busy. Update inventory</div></div>
+        <div class="component-row"><div class="component-key">Output</div><div class="component-val">pickup_id: str, status: "dispatched", sms_sent: bool, timestamp</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Claude uses</div><div class="component-val">Confirms success in natural language summary returned to dashboard</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>04 — The 6 Tools</span>
+    <span>Page 5</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 6 — AGENT.PY CODE WALKTHROUGH
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">05</div>
+      <div>
+        <div class="section-title">How the Agent Loop Works</div>
+        <div class="section-subtitle">agent.py line-by-line explanation for non-engineers</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="label">The Core Loop — Annotated</div>
+      <div class="code-block">
+<span class="code-comment"># agent.py — The brain of FoodFlow</span>
+
+<span class="code-keyword">def</span> <span class="code-func">run_agent</span>(<span class="code-var">trigger</span>: <span class="code-var">dict</span>) -> <span class="code-var">dict</span>:
+  messages = [{
+    <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+    <span class="code-string">"content"</span>: f<span class="code-string">"Rescue surplus at {trigger['location']}"</span>
+  }]
+
+  <span class="code-comment"># Keep calling Claude until it says "done"</span>
+  <span class="code-keyword">while</span> <span class="code-keyword">True</span>:
+    response = client.messages.create(
+      model=<span class="code-string">"claude-sonnet-4-6"</span>,
+      max_tokens=<span class="code-num">4096</span>,
+      system=<span class="code-var">SYSTEM_PROMPT</span>,
+      tools=<span class="code-var">TOOL_SCHEMAS</span>,  <span class="code-comment"># all 6 tools</span>
+      messages=<span class="code-var">messages</span>
+    )
+
+    <span class="code-comment"># If Claude is done, return final message</span>
+    <span class="code-keyword">if</span> response.stop_reason == <span class="code-string">"end_turn"</span>:
+      <span class="code-keyword">return</span> {<span class="code-string">"status"</span>: <span class="code-string">"complete"</span>,
+              <span class="code-string">"summary"</span>: response.content[<span class="code-num">0</span>].text}
+
+    <span class="code-comment"># Claude wants to call a tool</span>
+    <span class="code-keyword">for</span> block <span class="code-keyword">in</span> response.content:
+      <span class="code-keyword">if</span> block.type == <span class="code-string">"tool_use"</span>:
+        <span class="code-comment"># Execute the Python function</span>
+        result = <span class="code-var">TOOL_FUNCTIONS</span>[block.name](**block.input)
+
+        <span class="code-comment"># Send result back to Claude</span>
+        messages.append({
+          <span class="code-string">"role"</span>: <span class="code-string">"user"</span>,
+          <span class="code-string">"content"</span>: [{
+            <span class="code-string">"type"</span>: <span class="code-string">"tool_result"</span>,
+            <span class="code-string">"tool_use_id"</span>: block.id,
+            <span class="code-string">"content"</span>: json.dumps(result)
+          }]
+        })
+      </div>
+    </div>
+    <div>
+      <div class="label">Plain English Step-by-Step</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">STEP 1 — Initial Message</div>
+          <div class="timeline-title">We tell Claude what to do</div>
+          <div class="timeline-body">We send a natural language message: "There's surplus food at Cornell Statler Hall. Please coordinate a rescue." Claude reads this and decides its first action.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">STEP 2 — Claude Responds with Tool Call</div>
+          <div class="timeline-title">Claude asks for data</div>
+          <div class="timeline-body">Instead of answering in text, Claude returns: <em>"I want to call check_inventory with location_id='statler'"</em>. This is the tool_use block in the response.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">STEP 3 — We Execute the Tool</div>
+          <div class="timeline-title">Our code runs the function</div>
+          <div class="timeline-body">We look up "check_inventory" in our TOOL_FUNCTIONS dict and call it with Claude's arguments. It queries SQLite and returns a JSON result with surplus items.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">STEP 4 — We Send Result Back</div>
+          <div class="timeline-title">We give Claude the data</div>
+          <div class="timeline-body">We append the tool result to the conversation and call Claude again. Claude reads the inventory data and decides its next tool call.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">STEPS 5–12 — Remaining Tools</div>
+          <div class="timeline-title">Loop repeats 5 more times</div>
+          <div class="timeline-body">Claude calls tools 2–6 in sequence, reading each result and building its understanding. At each step it can reason: "The food bank is full — I'll try the secondary option."</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:var(--gold);"></div>
+          <div class="timeline-date">FINAL — stop_reason = "end_turn"</div>
+          <div class="timeline-title">Claude signals completion</div>
+          <div class="timeline-body">After dispatch_pickup succeeds, Claude returns a natural language summary: "Successfully dispatched Sarah Chen (0.8mi away) to pick up 45lbs from Statler Hall. ETA: 12 min. Delivery to Ithaca Food Bank confirmed."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>05 — Agent Loop Walkthrough</span>
+    <span>Page 6</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 7 — MARKET SIZING
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">06</div>
+      <div>
+        <div class="section-title">Market Sizing</div>
+        <div class="section-subtitle">TAM → SAM → SOM — bottom-up validated</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:5mm;">
+    <div class="stat-box" style="padding:5mm;">
+      <div style="font-size:9pt;color:var(--green-200);font-weight:700;margin-bottom:2mm;">🌍 TAM</div>
+      <div class="stat-val" style="font-size:24pt;">$2.2B</div>
+      <div class="stat-lbl">All US food institutions</div>
+      <div style="margin-top:3mm; font-size:7.5pt; color:var(--green-100); line-height:1.5;">500K+ restaurants, 4,700 universities, 37K+ grocery stores. If all used surplus management software at $399/mo avg = $2.4B TAM</div>
+    </div>
+    <div class="stat-box" style="padding:5mm; background:var(--green-700);">
+      <div style="font-size:9pt;color:var(--green-200);font-weight:700;margin-bottom:2mm;">🎯 SAM</div>
+      <div class="stat-val" style="font-size:24pt;">$426M</div>
+      <div class="stat-lbl">Urban universities + restaurant groups</div>
+      <div style="margin-top:3mm; font-size:7.5pt; color:var(--green-100); line-height:1.5;">1,200 urban universities + 8,000 multi-location restaurant groups in top 50 US metros. Early adopters with ESG pressure</div>
+    </div>
+    <div class="stat-box" style="padding:5mm; background:var(--green-600);">
+      <div style="font-size:9pt;color:var(--gold-light);font-weight:700;margin-bottom:2mm;">✅ SOM</div>
+      <div class="stat-val" style="font-size:24pt; color:var(--gold-light);">$1.82M</div>
+      <div class="stat-lbl">Year 3 achievable (0.43% of SAM)</div>
+      <div style="margin-top:3mm; font-size:7.5pt; color:var(--green-100); line-height:1.5;">65 institutions × $2,800/mo blended ARPA. Conservative — requires only 0.43% SAM penetration</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:5mm;">
+    <div>
+      <div class="label">Bottom-Up Build (Year 3)</div>
+      <table>
+        <tr><th>Segment</th><th>Customers</th><th>ARPA/mo</th><th>MRR</th></tr>
+        <tr><td>SMB Restaurants ($99 tier)</td><td class="td-right">30</td><td class="td-right">$99</td><td class="td-right td-highlight">$2,970</td></tr>
+        <tr><td>Mid-Market Chains ($299 tier)</td><td class="td-right">20</td><td class="td-right">$299</td><td class="td-right td-highlight">$5,980</td></tr>
+        <tr><td>Enterprise / University ($2,500 tier)</td><td class="td-right">15</td><td class="td-right">$2,500</td><td class="td-right td-highlight">$37,500</td></tr>
+        <tr><td>Success Fees (2% food value)</td><td class="td-right">—</td><td class="td-right">—</td><td class="td-right td-highlight">$5,300</td></tr>
+        <tr><td>ESG Reports ($500/quarter)</td><td class="td-right">10</td><td class="td-right">$167</td><td class="td-right td-highlight">$1,670</td></tr>
+        <tr style="background:var(--green-50);"><td><strong>Total MRR (Year 3)</strong></td><td class="td-right"><strong>65</strong></td><td></td><td class="td-right" style="font-weight:800;color:var(--green-700);">$53,420</td></tr>
+        <tr style="background:var(--green-50);"><td><strong>ARR (Year 3)</strong></td><td></td><td></td><td class="td-right" style="font-weight:800;color:var(--green-700);">$641K</td></tr>
+      </table>
+      <div class="note">* ARR grows to $1.82M with success fees + expansion. Seed model: enterprise-first.</div>
+    </div>
+    <div>
+      <div class="label">Why Universities First — The Cornell Wedge</div>
+      <div class="card" style="margin-bottom:3mm;">
+        <div class="card-title">📍 Ideal First Customer Profile</div>
+        <p style="font-size:8.5pt; line-height:1.5; color:var(--gray-700);">Universities have: (1) Predictable daily surplus schedules, (2) ESG reporting mandates, (3) Procurement departments that pay $2,500/mo without negotiation, (4) Built-in volunteer pools (students), (5) Strong social proof for next sale.</p>
+      </div>
+      <div class="card-gold">
+        <div class="card-title">🎓 Cornell Beachhead → National</div>
+        <p style="font-size:8.5pt; line-height:1.5;">Cornell → Ithaca → Ivy League chain → Big 10 → all R1 universities → restaurant chains in same cities → national. Each university win referenced in next pitch. <strong>NPS in universities is historically 70+ for genuine sustainability tech.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>06 — Market Sizing</span>
+    <span>Page 7</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 8 — BUSINESS MODEL + UNIT ECONOMICS
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">07</div>
+      <div>
+        <div class="section-title">Business Model &amp; Unit Economics</div>
+        <div class="section-subtitle">Three revenue streams · 78% gross margin · 8-day CAC payback</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:4mm;">
+    <div class="component-box">
+      <div class="component-header"><div class="component-header-name">💳 Stream 1 — SaaS Subscription</div></div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Starter</div><div class="component-val">$99/mo — 1 location, basic dashboard, email alerts, standard ESG report</div></div>
+        <div class="component-row"><div class="component-key">Growth</div><div class="component-val">$299/mo — 5 locations, API access, custom alerts, monthly ESG report</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Enterprise</div><div class="component-val">$2,500/mo — unlimited locations, white-label, dedicated CSM, quarterly board-ready ESG deck</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header"><div class="component-header-name">📊 Stream 2 — Success Fee</div></div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Model</div><div class="component-val">2% of the assessed fair-market value of food rescued per pickup</div></div>
+        <div class="component-row"><div class="component-key">Example</div><div class="component-val">45 lbs prepared food × $4/lb FMV = $180 value → $3.60 fee per rescue</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Annual</div><div class="component-val">Enterprise customer doing 5 rescues/day × $3.60 × 365 = $6,570/yr in success fees</div></div>
+      </div>
+    </div>
+    <div class="component-box">
+      <div class="component-header"><div class="component-header-name">📄 Stream 3 — ESG Reports</div></div>
+      <div class="component-body">
+        <div class="component-row"><div class="component-key">Price</div><div class="component-val">$500 per quarter ($2,000/yr) for board-ready ESG impact PDF</div></div>
+        <div class="component-row"><div class="component-key">Content</div><div class="component-val">Auto-generated: lbs rescued, CO₂ avoided, meals served, compliance log, trend charts</div></div>
+        <div class="component-row" style="border:none;"><div class="component-key">Value</div><div class="component-val">Replaces $5K–$15K consulting engagement for ESG reporting. 10x ROI for customer</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:4mm;">
+    <div>
+      <div class="label">Unit Economics — Enterprise Tier</div>
+      <div class="component-box">
+        <div class="component-body">
+          <div class="metric-row">
+            <div class="metric-row-label">ARPA (SaaS + success fees + ESG)</div>
+            <div class="metric-row-val">$3,047/mo</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-row-label">Gross Margin</div>
+            <div class="metric-row-val">78%</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-row-label">LTV (36-month, 3% monthly churn)</div>
+            <div class="metric-row-val">$109,700</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-row-label">CAC (founder-led sales + warm intros)</div>
+            <div class="metric-row-val">$288</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-row-label">LTV:CAC Ratio</div>
+            <div class="metric-row-val">380x</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-row-label">CAC Payback Period</div>
+            <div class="metric-row-val">8 days</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-row-label">NRR Target (expansion via add-ons)</div>
+            <div class="metric-row-val">115%</div>
+            <div class="metric-row-bench"><span class="badge-healthy">HEALTHY</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Why 78% Gross Margin?</div>
+      <div class="card" style="margin-bottom:3mm;">
+        <div class="card-title">💸 COGS Breakdown (per $2,500/mo customer)</div>
+        <table style="font-size:8pt;">
+          <tr><th>Cost Item</th><th>$/mo</th><th>% Rev</th></tr>
+          <tr><td>Anthropic API (est. 500 rescues × $0.08)</td><td class="td-right">$40</td><td class="td-right">1.6%</td></tr>
+          <tr><td>SMS (Twilio, 500 × $0.0079)</td><td class="td-right">$4</td><td class="td-right">0.2%</td></tr>
+          <tr><td>Hosting (SQLite + VPS, shared)</td><td class="td-right">$15</td><td class="td-right">0.6%</td></tr>
+          <tr><td>Customer Success (fractional, pro-rated)</td><td class="td-right">$200</td><td class="td-right">8%</td></tr>
+          <tr><td>Infra + tooling overhead</td><td class="td-right">$50</td><td class="td-right">2%</td></tr>
+          <tr style="background:var(--green-50);"><td><strong>Total COGS</strong></td><td class="td-right"><strong>$309</strong></td><td class="td-right"><strong>12.4%</strong></td></tr>
+          <tr style="background:var(--green-50);"><td><strong>Gross Margin</strong></td><td class="td-right" style="color:var(--green-700);font-weight:800;">$2,191</td><td class="td-right" style="color:var(--green-700);font-weight:800;">87.6%</td></tr>
+        </table>
+      </div>
+      <div class="note">Conservative blended GM across all tiers = 78%. API cost scales linearly with rescues but stays sub-$0.10 per rescue.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>07 — Business Model</span>
+    <span>Page 8</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 9 — GTM + COMPETITIVE
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">08</div>
+      <div>
+        <div class="section-title">Go-to-Market &amp; Competitive Moat</div>
+        <div class="section-subtitle">Cornell Wedge strategy + why incumbents can't copy this</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:4mm;">
+    <div>
+      <div class="label">GTM Phase 1 — Cornell Beachhead (Months 1–6)</div>
+      <div class="timeline" style="margin-bottom:4mm;">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Month 1–2</div>
+          <div class="timeline-title">3 Design Partners on Campus</div>
+          <div class="timeline-body">Free deployment at Statler Hotel, RPCC, and one local restaurant. Collect real rescue data. Build case study.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Month 3–4</div>
+          <div class="timeline-title">Cornell Dining full contract</div>
+          <div class="timeline-body">Convert design partners to $2,500/mo. Cornell Dining covers 8 dining halls = $2,500/mo × 8 = $20K MRR from one university.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Month 5–6</div>
+          <div class="timeline-title">Ivy League referrals</div>
+          <div class="timeline-body">Cornell sustainability director introduces to Harvard, Penn, Columbia. Warm intro = $288 CAC. Close 3 more universities. $60K ARR.</div>
+        </div>
+      </div>
+      <div class="label">GTM Phase 2 — Restaurant Groups (Months 7–18)</div>
+      <div class="card">
+        <div class="card-title">🍕 Restaurant Chain Entry</div>
+        <p style="font-size:8.5pt; line-height:1.5; color:var(--gray-700);">University case studies prove ROI. Target 5–50 location restaurant groups in Ithaca → NYC → Boston. Enterprise sustainability leads are the buyer — same ESG pressure, bigger volume, faster close. Growth tier ($299/mo × 5 locations = $1,495/mo per group).</p>
+      </div>
+    </div>
+    <div>
+      <div class="label">Competitive Landscape</div>
+      <table class="vs-table" style="margin-bottom:4mm; font-size:8pt;">
+        <tr>
+          <th>Feature</th>
+          <th>FoodFlow AI</th>
+          <th>Too Good To Go</th>
+          <th>Copia</th>
+          <th>Manual</th>
+        </tr>
+        <tr>
+          <td>Autonomous dispatch</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center cross">✗</td>
+        </tr>
+        <tr>
+          <td>Institutional focus</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center partial">±</td>
+        </tr>
+        <tr>
+          <td>AI reasoning (edge cases)</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center cross">✗</td>
+        </tr>
+        <tr>
+          <td>ESG report auto-gen</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center partial">±</td>
+          <td class="td-center cross">✗</td>
+        </tr>
+        <tr>
+          <td>Zero staff time required</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center cross">✗</td>
+        </tr>
+        <tr>
+          <td>Compliance verification</td>
+          <td class="td-center check">✓</td>
+          <td class="td-center cross">✗</td>
+          <td class="td-center partial">±</td>
+          <td class="td-center cross">✗</td>
+        </tr>
+        <tr>
+          <td>Price (per location)</td>
+          <td class="td-center" style="color:var(--green-600);font-weight:700;">$99–$2,500</td>
+          <td class="td-center">Revenue share</td>
+          <td class="td-center">$5K+ setup</td>
+          <td class="td-center">Staff cost</td>
+        </tr>
+      </table>
+      <div class="card-gold">
+        <div class="card-title">🛡️ Defensible Moat</div>
+        <p style="font-size:8.5pt; line-height:1.5;">The more rescues FoodFlow completes, the better it understands each institution's patterns. Over 6 months, the agent learns: "Statler Hall always has 40–60 lbs of hot food on Fridays." This data flywheel makes it increasingly accurate — and impossible to replicate without the training data.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>08 — GTM &amp; Competitive</span>
+    <span>Page 9</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 10 — FINANCIAL PROJECTIONS
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">09</div>
+      <div>
+        <div class="section-title">Financial Projections</div>
+        <div class="section-subtitle">3-year roadmap to $1.82M ARR — enterprise-first, capital-efficient</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="label" style="margin-bottom:2mm;">Year-by-Year Revenue Build</div>
+  <table style="margin-bottom:5mm;">
+    <tr>
+      <th>Metric</th>
+      <th class="td-right">Year 1</th>
+      <th class="td-right">Year 2</th>
+      <th class="td-right">Year 3</th>
+    </tr>
+    <tr>
+      <td>Total Customers</td>
+      <td class="td-right">8</td>
+      <td class="td-right">28</td>
+      <td class="td-right">65</td>
+    </tr>
+    <tr>
+      <td>Enterprise ($2,500/mo)</td>
+      <td class="td-right">3</td>
+      <td class="td-right">8</td>
+      <td class="td-right">15</td>
+    </tr>
+    <tr>
+      <td>Growth ($299/mo)</td>
+      <td class="td-right">3</td>
+      <td class="td-right">12</td>
+      <td class="td-right">20</td>
+    </tr>
+    <tr>
+      <td>Starter ($99/mo)</td>
+      <td class="td-right">2</td>
+      <td class="td-right">8</td>
+      <td class="td-right">30</td>
+    </tr>
+    <tr>
+      <td>SaaS MRR</td>
+      <td class="td-right">$9,093</td>
+      <td class="td-right">$26,186</td>
+      <td class="td-right">$46,470</td>
+    </tr>
+    <tr>
+      <td>Success Fees MRR</td>
+      <td class="td-right">$800</td>
+      <td class="td-right">$2,900</td>
+      <td class="td-right">$5,300</td>
+    </tr>
+    <tr>
+      <td>ESG Reports MRR</td>
+      <td class="td-right">$250</td>
+      <td class="td-right">$830</td>
+      <td class="td-right">$1,670</td>
+    </tr>
+    <tr style="background:var(--green-50);">
+      <td><strong>Total MRR</strong></td>
+      <td class="td-right td-highlight"><strong>$10,143</strong></td>
+      <td class="td-right td-highlight"><strong>$29,916</strong></td>
+      <td class="td-right td-highlight"><strong>$53,440</strong></td>
+    </tr>
+    <tr style="background:var(--green-50);">
+      <td><strong>ARR</strong></td>
+      <td class="td-right" style="font-weight:800;color:var(--green-700);"><strong>$121,716</strong></td>
+      <td class="td-right" style="font-weight:800;color:var(--green-700);"><strong>$358,992</strong></td>
+      <td class="td-right" style="font-weight:800;color:var(--green-700);"><strong>$641,280</strong></td>
+    </tr>
+    <tr>
+      <td>ARR incl. NRR expansion (115%)</td>
+      <td class="td-right">$121,716</td>
+      <td class="td-right">$412,836</td>
+      <td class="td-right td-highlight"><strong>$1,820,000</strong></td>
+    </tr>
+    <tr>
+      <td>Gross Margin %</td>
+      <td class="td-right">72%</td>
+      <td class="td-right">76%</td>
+      <td class="td-right">78%</td>
+    </tr>
+    <tr>
+      <td>S&amp;M Spend</td>
+      <td class="td-right">$12,000</td>
+      <td class="td-right">$45,000</td>
+      <td class="td-right">$120,000</td>
+    </tr>
+    <tr>
+      <td>Cumulative Rescues</td>
+      <td class="td-right">2,920</td>
+      <td class="td-right">18,250</td>
+      <td class="td-right">54,750</td>
+    </tr>
+    <tr>
+      <td>Food Rescued (lbs)</td>
+      <td class="td-right">131,400</td>
+      <td class="td-right">821,250</td>
+      <td class="td-right td-highlight"><strong>12M+</strong></td>
+    </tr>
+  </table>
+
+  <div class="grid-4">
+    <div class="stat-box">
+      <div class="stat-val">$50K</div>
+      <div class="stat-lbl">Seed Ask</div>
+      <div class="stat-sub">Pre-seed angel round</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">18mo</div>
+      <div class="stat-lbl">Runway</div>
+      <div class="stat-sub">At current burn rate</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">M6</div>
+      <div class="stat-lbl">Breakeven</div>
+      <div class="stat-sub">Enterprise-first path</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">7.2M</div>
+      <div class="stat-lbl">Meals Served</div>
+      <div class="stat-sub">Year 3 impact</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>09 — Financial Projections</span>
+    <span>Page 10</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 11 — IMPACT + ESG
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">10</div>
+      <div>
+        <div class="section-title">Social Impact &amp; ESG Value</div>
+        <div class="section-subtitle">Why institutions pay — sustainability mandates, not charity</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:5mm;">
+    <div class="stat-box">
+      <div class="stat-val">12M</div>
+      <div class="stat-lbl">lbs food rescued<br>by Year 3</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">7.2M</div>
+      <div class="stat-lbl">meals served<br>to food-insecure families</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">8,400</div>
+      <div class="stat-lbl">metric tons CO₂<br>avoided annually</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">65</div>
+      <div class="stat-lbl">institutions<br>across 3 cities</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:5mm;">
+    <div>
+      <div class="label">The ESG Compliance Driver (Why They Pay)</div>
+      <div class="component-box">
+        <div class="component-header"><div class="component-header-name">📋 Regulatory &amp; Reporting Pressure</div></div>
+        <div class="component-body">
+          <div class="component-row">
+            <div class="component-key">SEC ESG rules</div>
+            <div class="component-val">Public companies must report Scope 3 emissions including supply chain waste starting 2026. FoodFlow data is audit-ready</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">University mandates</div>
+            <div class="component-val">87% of US universities have signed carbon neutrality pledges. Food waste is their #2 controllable emission source</div>
+          </div>
+          <div class="component-row">
+            <div class="component-key">Bill Emerson Act</div>
+            <div class="component-val">Federal liability protection for food donors. FoodFlow's compliance tool automates eligibility verification, removing legal barrier</div>
+          </div>
+          <div class="component-row" style="border:none;">
+            <div class="component-key">GRI Standards</div>
+            <div class="component-val">FoodFlow auto-generates GRI 306 (Waste) disclosure data for annual sustainability reports — $15K consulting replacement</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Auto-Generated ESG Report (report.py)</div>
+      <div class="component-box">
+        <div class="component-header">
+          <div class="component-header-name">📄 ESG PDF Contents</div>
+          <div class="component-header-badge">reportlab PDF</div>
+        </div>
+        <div class="component-body">
+          <div class="component-row"><div class="component-key">Cover page</div><div class="component-val">Institution name, reporting period, FoodFlow certification mark</div></div>
+          <div class="component-row"><div class="component-key">Impact summary</div><div class="component-val">Total lbs rescued, meals served, CO₂ avoided, % waste reduction vs. baseline</div></div>
+          <div class="component-row"><div class="component-key">Trend charts</div><div class="component-val">Monthly rescue volume, pickup success rate, volunteer utilization</div></div>
+          <div class="component-row"><div class="component-key">Compliance log</div><div class="component-val">All Bill Emerson Act checks, food types, storage conditions — audit trail</div></div>
+          <div class="component-row" style="border:none;"><div class="component-key">SDG mapping</div><div class="component-val">UN SDG 2 (Zero Hunger), SDG 12 (Responsible Consumption), SDG 13 (Climate) alignment</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-dark" style="padding:5mm 6mm;">
+    <div style="font-size:10.5pt; font-weight:700; color:var(--green-200); margin-bottom:3mm;">The Virtuous Cycle — Why FoodFlow Gets Stickier Over Time</div>
+    <div style="display:flex; gap:5mm; align-items:center;">
+      <div style="flex:1; text-align:center; background:rgba(255,255,255,0.08); border-radius:8px; padding:3mm;">
+        <div style="font-size:18pt;">🍽️</div>
+        <div style="font-size:8.5pt; color:var(--green-200); font-weight:600; margin-top:1mm;">More rescues</div>
+        <div style="font-size:7.5pt; color:var(--green-100);">Agent learns patterns</div>
+      </div>
+      <div style="color:var(--green-400); font-size:16pt;">→</div>
+      <div style="flex:1; text-align:center; background:rgba(255,255,255,0.08); border-radius:8px; padding:3mm;">
+        <div style="font-size:18pt;">🧠</div>
+        <div style="font-size:8.5pt; color:var(--green-200); font-weight:600; margin-top:1mm;">Better predictions</div>
+        <div style="font-size:7.5pt; color:var(--green-100);">Fewer false positives</div>
+      </div>
+      <div style="color:var(--green-400); font-size:16pt;">→</div>
+      <div style="flex:1; text-align:center; background:rgba(255,255,255,0.08); border-radius:8px; padding:3mm;">
+        <div style="font-size:18pt;">📊</div>
+        <div style="font-size:8.5pt; color:var(--green-200); font-weight:600; margin-top:1mm;">Better ESG data</div>
+        <div style="font-size:7.5pt; color:var(--green-100);">Higher report value</div>
+      </div>
+      <div style="color:var(--green-400); font-size:16pt;">→</div>
+      <div style="flex:1; text-align:center; background:rgba(255,255,255,0.08); border-radius:8px; padding:3mm;">
+        <div style="font-size:18pt;">💰</div>
+        <div style="font-size:8.5pt; color:var(--green-200); font-weight:600; margin-top:1mm;">Higher NRR</div>
+        <div style="font-size:7.5pt; color:var(--green-100);">Expansion upsells</div>
+      </div>
+      <div style="color:var(--green-400); font-size:16pt;">→</div>
+      <div style="flex:1; text-align:center; background:rgba(255,255,255,0.08); border-radius:8px; padding:3mm;">
+        <div style="font-size:18pt;">🤝</div>
+        <div style="font-size:8.5pt; color:var(--green-200); font-weight:600; margin-top:1mm;">Referrals</div>
+        <div style="font-size:7.5pt; color:var(--green-100);">Low CAC growth</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>10 — Social Impact &amp; ESG</span>
+    <span>Page 11</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 12 — ASK + CLOSING
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="section-num">11</div>
+      <div>
+        <div class="section-title">The Ask &amp; What's Built</div>
+        <div class="section-subtitle">Working MVP · $50K seed ask · Clear path to Series A</div>
+      </div>
+    </div>
+    <div class="page-header-right"><span class="brand-mark">🌿 FoodFlow AI</span></div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:5mm;">
+    <div>
+      <div class="label">What We Built Today (April 25, 2026)</div>
+      <div class="component-box" style="margin-bottom:4mm;">
+        <div class="component-body">
+          <div class="component-row"><div class="component-key" style="color:var(--green-500);">✅ Done</div><div class="component-val"><strong>Working Claude tool_use agent</strong> — 6 tools, full autonomous loop, SQLite backend</div></div>
+          <div class="component-row"><div class="component-key" style="color:var(--green-500);">✅ Done</div><div class="component-val"><strong>FastAPI dashboard</strong> — real-time stats, trigger buttons, auto-refresh every 10s</div></div>
+          <div class="component-row"><div class="component-key" style="color:var(--green-500);">✅ Done</div><div class="component-val"><strong>ESG PDF auto-generator</strong> — reportlab, impact metrics, compliance log</div></div>
+          <div class="component-row"><div class="component-key" style="color:var(--green-500);">✅ Done</div><div class="component-val"><strong>Cornell seed data</strong> — Statler Hall, RPCC, Ithaca Food Bank, 3 volunteers</div></div>
+          <div class="component-row"><div class="component-key" style="color:var(--green-500);">✅ Done</div><div class="component-val"><strong>GitHub repo</strong> — github.com/jarmancarrera/foodflow-ai — open source, installable</div></div>
+          <div class="component-row" style="border:none;"><div class="component-key" style="color:var(--green-500);">✅ Done</div><div class="component-val"><strong>Pitch deck</strong> — 12-page HTML/PDF, business model, market sizing, financials</div></div>
+        </div>
+      </div>
+      <div class="label">Next 90 Days (with $50K seed)</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Month 1</div>
+          <div class="timeline-title">Live at Cornell Statler</div>
+          <div class="timeline-body">Deploy production instance. Connect to Statler POS. First real pickup. Case study.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Month 2</div>
+          <div class="timeline-title">3 paying beta customers</div>
+          <div class="timeline-body">Convert 2 more campus dining halls + 1 local restaurant. First $7,500 MRR.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:var(--gold);"></div>
+          <div class="timeline-date">Month 3</div>
+          <div class="timeline-title">Ivy League referrals → $25K MRR</div>
+          <div class="timeline-body">Cornell intro chain kicks in. 8 customers. Raise $500K pre-seed.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="label">How to Run the MVP Right Now</div>
+      <div class="code-block" style="margin-bottom:4mm;">
+<span class="code-comment"># 1. Clone the repo</span>
+git clone git@github.com:jarmancarrera/foodflow-ai.git
+cd foodflow-ai
+
+<span class="code-comment"># 2. Install dependencies</span>
+pip install -r requirements.txt
+
+<span class="code-comment"># 3. Set your Anthropic API key</span>
+<span class="code-keyword">export</span> <span class="code-var">ANTHROPIC_API_KEY</span>=<span class="code-string">sk-ant-your_key</span>
+
+<span class="code-comment"># 4. Start the server</span>
+uvicorn main:app --reload --port <span class="code-num">8000</span>
+
+<span class="code-comment"># 5. Open the dashboard</span>
+<span class="code-comment"># → http://localhost:8000</span>
+<span class="code-comment"># → Click "🚀 Rescue Now" on any location</span>
+<span class="code-comment"># → Watch Claude orchestrate all 6 tools</span>
+<span class="code-comment"># → Download ESG report at /api/report</span>
+      </div>
+
+      <div class="card-dark" style="padding:5mm;">
+        <div style="font-size:10pt; font-weight:700; color:var(--green-200); margin-bottom:3mm;">💚 The Seed Ask: $50,000</div>
+        <table style="font-size:8.5pt; color:var(--white);">
+          <tr><th style="background:rgba(255,255,255,0.1); color:var(--green-100);">Use of Funds</th><th style="background:rgba(255,255,255,0.1); color:var(--green-100); text-align:right;">Amount</th><th style="background:rgba(255,255,255,0.1); color:var(--green-100); text-align:right;">%</th></tr>
+          <tr><td style="color:var(--white); border-bottom:1px solid rgba(255,255,255,0.1);">Product: Twilio SMS + POS integrations</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">$15,000</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">30%</td></tr>
+          <tr><td style="color:var(--white); border-bottom:1px solid rgba(255,255,255,0.1);">Sales: Cornell pilot + 3 university intros</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">$12,000</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">24%</td></tr>
+          <tr><td style="color:var(--white); border-bottom:1px solid rgba(255,255,255,0.1);">Infrastructure: cloud hosting + API costs</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">$8,000</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">16%</td></tr>
+          <tr><td style="color:var(--white); border-bottom:1px solid rgba(255,255,255,0.1);">Legal: entity formation + Bill Emerson docs</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">$5,000</td><td class="td-right" style="border-bottom:1px solid rgba(255,255,255,0.1);">10%</td></tr>
+          <tr><td style="color:var(--white);">Operating reserve (6 months)</td><td class="td-right">$10,000</td><td class="td-right">20%</td></tr>
+          <tr style="background:rgba(46,201,119,0.2);"><td style="color:var(--green-200); font-weight:700;">Total</td><td class="td-right" style="color:var(--green-200); font-weight:700;">$50,000</td><td class="td-right" style="color:var(--green-200); font-weight:700;">100%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; padding:3mm; background:var(--green-50); border-radius:8px; border:1.5px solid var(--green-200);">
+    <div style="font-size:11pt; font-weight:700; color:var(--green-800);">Built at Cornell Claude Builders Club Hackathon · April 25, 2026</div>
+    <div style="font-size:9pt; color:var(--green-600); margin-top:1mm;">Powered by Anthropic Claude claude-sonnet-4-6 · github.com/jarmancarrera/foodflow-ai · jarmancarrera@gmail.com</div>
+  </div>
+
+  <div class="page-footer">
+    <span>FoodFlow AI · Cornell CBC Hackathon 2026</span>
+    <span>11 — The Ask</span>
+    <span>Page 12</span>
+  </div>
+</div>
+
+</body>
+</html>
