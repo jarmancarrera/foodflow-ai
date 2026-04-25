@@ -1,224 +1,675 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>FoodFlow AI — Rescue Console</title>
-  <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A3622">
+<title>FoodFlow AI &mdash; Rescue Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --forest:#0A3622;--forest-d:#061d13;--green:#16A34A;--green-lt:#22c55e;
+  --mint:#DCFCE7;--fog:#F8FAFC;--fog2:#F1F5F9;--ink:#0F172A;
+  --slate:#475569;--muted:#94A3B8;--line:#E2E8F0;
+  --white:#FFFFFF;--gold:#CA8A04;--red:#DC2626;
+  --fd:'DM Serif Display',Georgia,serif;
+  --fb:'Sora',system-ui,sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--fb);background:var(--fog2);color:var(--ink);min-height:100vh}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--forest);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  box-shadow:0 2px 16px rgba(0,0,0,.2);
+}
+.nav-inner{
+  max-width:1280px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:60px;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-icon{width:30px;height:30px;flex-shrink:0}
+.nav-title{font-weight:700;font-size:14px;color:var(--white);letter-spacing:.01em}
+.nav-title sup{font-size:9px;font-weight:400;color:var(--mint);letter-spacing:.1em}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{
+  font-size:12px;font-weight:500;color:rgba(255,255,255,.6);
+  padding:6px 12px;border-radius:6px;transition:all .2s;
+  text-decoration:none;letter-spacing:.01em;
+}
+.nav-links a:hover{color:var(--white);background:rgba(255,255,255,.08)}
+.nav-links a.active{color:var(--mint);background:rgba(220,252,231,.1)}
+.nav-links a:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.nav-pill{
+  background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.3);
+  color:var(--mint);padding:5px 12px;border-radius:100px;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+}
+
+/* ── LAYOUT ── */
+.page{max-width:1280px;margin:0 auto;padding:28px 28px 60px}
+
+/* ── ALERT BANNER ── */
+.alert-banner{
+  background:#fff7ed;border:1px solid #fdba74;border-left:4px solid var(--gold);
+  border-radius:10px;padding:14px 18px;margin-bottom:24px;
+  display:flex;align-items:center;gap:12px;
+}
+.alert-banner svg{flex-shrink:0;color:var(--gold)}
+.alert-banner p{font-size:13px;color:#92400e;line-height:1.5}
+.alert-banner code{background:#fef3c7;padding:2px 6px;border-radius:4px;font-family:var(--fm);font-size:12px}
+
+/* ── STATS STRIP ── */
+.stats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:24px;
+}
+.stat-tile{
+  background:var(--white);border:1px solid var(--line);border-radius:14px;
+  padding:20px 20px 16px;box-shadow:0 1px 4px rgba(0,0,0,.04);
+  position:relative;overflow:hidden;
+}
+.stat-tile::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.st-green::before{background:var(--green)}
+.st-gold::before{background:var(--gold)}
+.st-red::before{background:var(--red)}
+.stat-tile-val{
+  font-family:var(--fd);font-size:clamp(26px,3vw,38px);
+  letter-spacing:-.02em;line-height:1;margin-bottom:5px;color:var(--forest);
+}
+.stat-tile-lbl{font-size:12px;color:var(--muted);font-weight:500}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--white);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 1px 8px rgba(0,0,0,.05);overflow:hidden;
+}
+.panel-head{
+  padding:16px 20px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.panel-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.01em}
+.panel-body{padding:16px 20px}
+
+/* ── SURPLUS ALERT CARDS ── */
+.alert-card{
+  border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;
+  margin-bottom:10px;transition:border-color .2s,box-shadow .2s;
+}
+.alert-card:hover{border-color:rgba(22,163,74,.4);box-shadow:0 2px 12px rgba(22,163,74,.08)}
+.alert-card:last-child{margin-bottom:0}
+.ac-item{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.ac-meta{display:flex;gap:12px;margin-bottom:12px}
+.ac-loc{font-size:12px;color:var(--slate)}
+.ac-lbs{font-size:12px;font-weight:600;color:var(--green)}
+.ac-time{font-size:11px;color:var(--muted);font-family:var(--fm)}
+.trigger-btn{
+  width:100%;padding:10px;border-radius:8px;
+  background:var(--forest);color:var(--white);
+  font-size:13px;font-weight:600;letter-spacing:.01em;
+  border:none;cursor:pointer;
+  transition:all .2s var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.trigger-btn:hover{background:var(--green);transform:translateY(-1px);box-shadow:0 4px 16px rgba(22,163,74,.3)}
+.trigger-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.trigger-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* ── QUICK ACTIONS ── */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.qa-btn{
+  padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  text-align:center;cursor:pointer;transition:all .2s;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  border:1.5px solid var(--line);background:var(--fog2);color:var(--slate);
+}
+.qa-btn:hover{background:var(--fog);border-color:var(--slate);color:var(--ink)}
+.qa-btn.pdf{background:var(--mint);border-color:rgba(22,163,74,.3);color:var(--forest)}
+.qa-btn.pdf:hover{background:var(--green);color:var(--white);border-color:var(--green)}
+.qa-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* ── AGENT CONSOLE ── */
+.console-panel{background:var(--forest-d);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden}
+.console-head{
+  padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(0,0,0,.2);
+}
+.console-title{font-size:13px;font-weight:700;color:var(--white)}
+.console-body{padding:20px}
+
+/* Status badge */
+.status-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:100px;font-size:11px;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase;font-family:var(--fm);
+}
+.sb-idle  {background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.sb-run   {background:rgba(165,243,252,.1);border:1px solid rgba(165,243,252,.3);color:#a5f3fc}
+.sb-ok    {background:rgba(220,252,231,.1);border:1px solid rgba(220,252,231,.3);color:var(--mint)}
+.sb-warn  {background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);color:#fde68a}
+.sb-err   {background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.run-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse-dot 1.2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* Step list */
+.step-list{display:flex;flex-direction:column;gap:6px}
+.step-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);
+  transition:all .3s var(--ease);
+  opacity:.35;
+}
+.step-item.done{opacity:1;border-color:rgba(22,163,74,.3);background:rgba(22,163,74,.06)}
+.step-item.active{opacity:1;border-color:rgba(165,243,252,.3);background:rgba(165,243,252,.06)}
+.step-item.waiting{opacity:.18}
+.step-num{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.4);margin-top:1px;
+}
+.step-item.done .step-num{background:rgba(22,163,74,.2);border-color:rgba(22,163,74,.4);color:var(--green-lt)}
+.step-item.active .step-num{background:rgba(165,243,252,.15);border-color:rgba(165,243,252,.4);color:#a5f3fc}
+.step-right{flex:1;min-width:0}
+.step-tool{font-size:12px;font-weight:600;color:rgba(255,255,255,.85);font-family:var(--fm);margin-bottom:3px}
+.step-item.done .step-tool{color:var(--green-lt)}
+.step-item.active .step-tool{color:#a5f3fc}
+.step-detail{font-size:11px;color:rgba(255,255,255,.4);line-height:1.5}
+.step-item.done .step-detail{color:rgba(220,252,231,.65)}
+
+/* Summary box */
+.summary-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);
+  font-size:13px;color:rgba(255,255,255,.75);line-height:1.65;
+}
+.summary-box.hidden{display:none}
+
+/* Running animation */
+.running-anim{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-radius:10px;
+  background:rgba(165,243,252,.06);border:1px solid rgba(165,243,252,.2);
+  margin-bottom:12px;
+}
+.running-anim.hidden{display:none}
+.spinner{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  border:2px solid rgba(165,243,252,.2);border-top-color:#a5f3fc;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.running-text{font-size:12px;color:#a5f3fc;font-family:var(--fm)}
+
+/* Dispatch result */
+.dispatch-result{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(220,252,231,.08);border:1px solid rgba(220,252,231,.2);
+}
+.dispatch-result.hidden{display:none}
+.dr-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);margin-bottom:8px;font-family:var(--fm)}
+.dr-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:4px 0}
+.dr-label{color:rgba(255,255,255,.4)}
+.dr-val{color:var(--white);font-weight:600}
+.dr-val.highlight{color:var(--mint)}
+
+/* Empty state */
+.empty-state{
+  text-align:center;padding:40px 20px;
+  color:rgba(255,255,255,.25);
+}
+.empty-state svg{margin:0 auto 12px;opacity:.3}
+.empty-state p{font-size:13px;line-height:1.6}
+
+/* ── RESCUE ID CHIP ── */
+.rescue-chip{
+  font-family:var(--fm);font-size:11px;color:rgba(255,255,255,.35);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  padding:3px 10px;border-radius:100px;display:inline-block;
+  margin-bottom:14px;
+}
+
+/* ── ANIM ── */
+@keyframes step-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.step-item.done{animation:step-in .35s var(--ease) both}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .main-grid{grid-template-columns:1fr}
+  .stats-strip{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .stats-strip{grid-template-columns:1fr 1fr}
+  .page{padding:16px 16px 48px}
+  .quick-actions{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">🌿</div>
-    <div>
-      <div class="title">FoodFlow AI</div>
-      <div class="subtitle">Autonomous food rescue (demo)</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <a class="link" href="/pitch">Pitch</a>
-    <a class="link" href="/ops">Ops</a>
-    <a class="link" href="/docs">API Docs</a>
-    {% if demo_token %}
-      <a class="link" href="/api/report?token={{ demo_token }}">Download ESG PDF</a>
-    {% else %}
-      <a class="link" href="/api/report">Download ESG PDF</a>
-    {% endif %}
-  </div>
-</header>
 
-<main>
-  <section class="hero">
-    <div class="hero-left">
-      <h2>Rescue surplus food in under 30 seconds</h2>
-      <p class="muted">
-        Choose an alert below. When you click <b>Trigger AI Rescue</b>, FoodFlow runs a 6-step loop:
-        inventory → food bank → driver → route → compliance → dispatch.
-      </p>
-      <div class="pill-row">
-        <div class="pill"><b>Model:</b> Claude tool_use</div>
-        <div class="pill"><b>Trace:</b> stored per rescue_id</div>
-        <div class="pill"><b>Inspect:</b> open <b>/ops</b></div>
-      </div>
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 1024 1024">
+      <rect x="112" y="112" width="800" height="800" rx="200" fill="#0A3622"/>
+      <path d="M294 496 L730 496 C719 642 618 736 512 736 C406 736 305 642 294 496 Z" fill="white"/>
+      <path d="M420 452 C382 410 398 348 466 316 C442 377 475 423 420 452 Z" fill="white"/>
+      <g fill="none" stroke="#0A3622" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M342 558 H630"/><path d="M342 628 H548"/>
+      </g>
+      <circle cx="650" cy="558" r="31" fill="white" stroke="#0A3622" stroke-width="28"/>
+      <circle cx="575" cy="628" r="31" fill="white" stroke="#0A3622" stroke-width="28"/>
+    </symbol>
+    <symbol id="warn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand" aria-label="FoodFlow AI home">
+      <svg class="nav-icon"><use href="#logo"/></svg>
+      <span class="nav-title">FoodFlow<sup>AI</sup></span>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="active" aria-current="page">Console</a>
+      <a href="/ops">Operations</a>
+      <a href="/pitch">Pitch</a>
+      <a href="/docs">API</a>
+      {% if demo_token %}
+        <a href="/api/report?token={{ demo_token }}" class="nav-pill">ESG&nbsp;PDF</a>
+      {% else %}
+        <a href="/api/report" class="nav-pill">ESG&nbsp;PDF</a>
+      {% endif %}
     </div>
-    <div class="hero-right">
-      <div class="stats">
-        <div class="stat">
-          <div class="num">{{ stats.total_pickups }}</div>
-          <div class="label">rescues completed</div>
-        </div>
-        <div class="stat">
-          <div class="num">{{ "%.0f"|format(stats.total_lbs) }} lbs</div>
-          <div class="label">food rescued</div>
-        </div>
-        <div class="stat">
-          <div class="num">{{ "%.0f"|format(stats.total_meals) }}</div>
-          <div class="label">meals served</div>
-        </div>
-        <div class="stat">
-          <div class="num">{{ "%.1f"|format(stats.total_co2_kg) }} kg</div>
-          <div class="label">CO₂ avoided</div>
-        </div>
-      </div>
-    </div>
-  </section>
+  </div>
+</nav>
+
+<div class="page">
 
   {% if not llm_ready %}
-  <div class="alert" style="margin-top:14px">
-    <b>Setup required:</b> Missing <code>ANTHROPIC_API_KEY</code>. Add it to your <code>.env</code> and restart the server.
+  <div class="alert-banner" role="alert">
+    <svg width="18" height="18"><use href="#warn-icon"/></svg>
+    <p><strong>Setup required:</strong> Add <code>ANTHROPIC_API_KEY=sk-ant-...</code> to your <code>.env</code> file and restart the server.</p>
   </div>
   {% endif %}
 
-  <section class="section">
-    <h3>Quick actions</h3>
-    <div class="cards">
-      <div class="card">
-        <div class="item">Open dashboards</div>
-        <div class="loc">Explore the system and data</div>
-        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-          <a class="btn" href="/ops">Open Ops</a>
-          <a class="btn" href="/pitch">Open Pitch</a>
+  <!-- STATS STRIP -->
+  <div class="stats-strip" role="region" aria-label="Impact metrics">
+    <div class="stat-tile st-green">
+      <div class="stat-tile-val" id="st-rescues">{{ stats.total_pickups }}</div>
+      <div class="stat-tile-lbl">Rescues completed</div>
+    </div>
+    <div class="stat-tile st-green">
+      <div class="stat-tile-val" id="st-lbs">{{ "%.0f"|format(stats.total_lbs) }}&nbsp;lbs</div>
+      <div class="stat-tile-lbl">Food rescued</div>
+    </div>
+    <div class="stat-tile st-gold">
+      <div class="stat-tile-val" id="st-meals">{{ "%.0f"|format(stats.total_meals) }}</div>
+      <div class="stat-tile-lbl">Meals generated</div>
+    </div>
+    <div class="stat-tile st-red">
+      <div class="stat-tile-val" id="st-co2">{{ "%.1f"|format(stats.total_co2_kg) }}&nbsp;kg</div>
+      <div class="stat-tile-lbl">CO&sub2; avoided</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: ALERTS + ACTIONS -->
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Active Surplus Alerts</div>
+          <span class="status-badge sb-idle" id="triggerStatus">Ready</span>
         </div>
-      </div>
-      <div class="card">
-        <div class="item">Demo tools</div>
-        <div class="loc">Keep the demo runnable for judges</div>
-        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-          <button class="btn" onclick="foodflowAdmin('/api/admin/volunteers/reset')">Reset volunteers</button>
-          <button class="btn" onclick="foodflowAdmin('/api/admin/reset')">Reset demo state</button>
-        </div>
-        <div class="time">Requires demo token (if enabled).</div>
-      </div>
-      <div class="card">
-        <div class="item">Download ESG report</div>
-        <div class="loc">Board-ready PDF impact summary</div>
-        <div style="margin-top:12px">
-          {% if demo_token %}
-            <a class="btn" href="/api/report?token={{ demo_token }}">Download PDF</a>
+        <div class="panel-body">
+          {% if surplus %}
+            {% for item in surplus %}
+            <div class="alert-card">
+              <div class="ac-item">{{ item.item }}</div>
+              <div class="ac-meta">
+                <span class="ac-loc">{{ item.location_name }}</span>
+                <span class="ac-lbs">{{ item.predicted_surplus }}&nbsp;lbs</span>
+              </div>
+              <div class="ac-time">Available at {{ item.available_at }}</div>
+              <button
+                class="trigger-btn"
+                style="margin-top:12px"
+                onclick="triggerRescue('{{ item.location_id }}', '{{ item.item }}', this)"
+                aria-label="Trigger AI rescue for {{ item.item }} at {{ item.location_name }}"
+              >
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Trigger AI Rescue
+              </button>
+            </div>
+            {% endfor %}
           {% else %}
-            <a class="btn" href="/api/report">Download PDF</a>
+            <p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">No active surplus alerts.</p>
           {% endif %}
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="section">
-  <h3>Active Surplus Alerts</h3>
-  {% if surplus %}
-  <div class="cards">
-    {% for item in surplus %}
-    <div class="card">
-      <div class="item">{{ item.item }}</div>
-      <div class="loc">📍 {{ item.location_name }}</div>
-      <div class="lbs">{{ item.predicted_surplus }} lbs predicted</div>
-      <div class="time">⏰ Available at {{ item.available_at }}</div>
-      <button class="trigger-btn"
-        onclick="this.textContent='Running…';this.disabled=true;
-                 window.foodflowTrigger('{{ item.location_id }}', this);">
-        Trigger AI Rescue
-      </button>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="alert">No active surplus alerts.</div>
-  {% endif %}
-  </section>
-
-  <section class="section">
-  <h3>Last Rescue (Agent Trace)</h3>
-  {% if last_rescue and last_rescue.rescue_id %}
-    <div class="cards">
-      <div class="card">
-        <div class="item">Rescue ID: {{ last_rescue.rescue_id }}</div>
-        <div class="loc">📍 {{ last_rescue.location_name or last_rescue.location_id }}</div>
-        <div class="lbs">Status: <b id="rescueStatus">{{ last_rescue.status }}</b></div>
-        <div class="time">Started: {{ last_rescue.started_at }}</div>
-        {% if last_rescue.completed_at %}
-        <div class="time">Completed: {{ last_rescue.completed_at }}</div>
-        {% endif %}
+      <!-- Quick actions -->
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-head">
+          <div class="panel-title">Demo Controls</div>
+        </div>
+        <div class="panel-body">
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="adminAction('/api/admin/volunteers/reset')" aria-label="Reset all volunteers to available">
+              Reset Volunteers
+            </button>
+            <button class="qa-btn" onclick="adminAction('/api/admin/reset')" aria-label="Clear all demo data">
+              Reset Demo
+            </button>
+            {% if demo_token %}
+              <a href="/api/report?token={{ demo_token }}" class="qa-btn pdf">Download ESG PDF</a>
+            {% else %}
+              <a href="/api/report" class="qa-btn pdf">Download ESG PDF</a>
+            {% endif %}
+            <a href="/ops" class="qa-btn">Open Ops View</a>
+          </div>
+        </div>
       </div>
-      {% if last_result %}
-      <div class="card">
-        <div class="item">What the AI decided</div>
-        <div class="loc">Backend: <span id="rescueBackend">{{ last_result.backend or "unknown" }}</span></div>
-        {% if last_result.final_message %}
-        <div class="time" style="margin-top:8px;color:#1b2434;line-height:1.4;">
+    </div>
+
+    <!-- RIGHT: AGENT CONSOLE -->
+    <div class="console-panel" role="region" aria-label="Agent trace console" aria-live="polite">
+      <div class="console-head">
+        <div class="console-title">Agent Loop &mdash; Real-Time Trace</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="rescue-chip" id="rescueChip">
+            {% if last_rescue and last_rescue.rescue_id %}{{ last_rescue.rescue_id }}{% else %}no rescue yet{% endif %}
+          </span>
+          <span class="status-badge sb-idle" id="consoleStatus">
+            {% if last_rescue %}{{ last_rescue.status }}{% else %}idle{% endif %}
+          </span>
+        </div>
+      </div>
+      <div class="console-body">
+
+        <!-- Running indicator -->
+        <div class="running-anim {% if not last_rescue or last_rescue.status != 'running' %}hidden{% endif %}" id="runningAnim">
+          <div class="spinner" aria-hidden="true"></div>
+          <span class="running-text">Claude is running the 6-tool rescue loop&hellip;</span>
+        </div>
+
+        <!-- Step list -->
+        <div class="step-list" id="stepList">
+          {% set steps = (last_result.steps if last_result and last_result.steps) or [] %}
+          {% set tools = ['check_inventory','check_foodbank_capacity','query_volunteers','calculate_route','verify_compliance','dispatch_pickup'] %}
+          {% set labels = ['Check inventory surplus','Find accepting food bank','Query available volunteers','Calculate pickup route','Verify compliance (Bill Emerson Act)','Dispatch pickup &amp; notify volunteer'] %}
+          {% for i in range(6) %}
+          {% set t = tools[i] %}
+          {% set done = steps|selectattr('tool','equalto',t)|list|length > 0 %}
+          {% set step_data = (steps|selectattr('tool','equalto',t)|list or [None])[0] %}
+          <div class="step-item {% if done %}done{% elif steps|length == 0 and last_rescue and last_rescue.status == 'running' and i == 0 %}active{% elif not done %}waiting{% endif %}">
+            <div class="step-num">{{ "%02d"|format(i+1) }}</div>
+            <div class="step-right">
+              <div class="step-tool">{{ t }}</div>
+              <div class="step-detail">
+                {% if done and step_data %}
+                  {% if t == 'check_inventory' %}
+                    {{ step_data.output.get('total_lbs', '') }} lbs surplus &mdash; {{ (step_data.output.get('items',[])|length) }} item(s)
+                  {% elif t == 'check_foodbank_capacity' %}
+                    {{ step_data.output.get('foodbank_name','') }} &mdash; {{ step_data.output.get('capacity_lbs_available','') }} lbs available
+                  {% elif t == 'query_volunteers' %}
+                    {{ step_data.output.get('count','') }} volunteer(s) found nearby
+                  {% elif t == 'calculate_route' %}
+                    {{ step_data.output.get('distance_miles','') }} mi &mdash; ETA {{ step_data.output.get('eta_string','') }}
+                  {% elif t == 'verify_compliance' %}
+                    {% if step_data.output.get('compliant') %}Compliant &mdash; Bill Emerson Act protected{% else %}Non-compliant{% endif %}
+                  {% elif t == 'dispatch_pickup' %}
+                    {{ step_data.output.get('quantity_lbs','') }} lbs dispatched &mdash; volunteer {{ step_data.output.get('volunteer_id','') }}
+                  {% endif %}
+                {% else %}
+                  {{ labels[i]|safe }}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Dispatch result -->
+        {% if last_result and last_result.dispatch and last_result.status == 'completed' %}
+        <div class="dispatch-result" id="dispatchResult">
+          <div class="dr-title">Rescue Dispatched</div>
+          <div class="dr-row"><span class="dr-label">Volunteer</span><span class="dr-val">{{ last_result.dispatch.get('volunteer_id','') }}</span></div>
+          <div class="dr-row"><span class="dr-label">Quantity</span><span class="dr-val highlight">{{ last_result.dispatch.get('quantity_lbs','') }} lbs &mdash; {{ last_result.dispatch.get('item','') }}</span></div>
+          <div class="dr-row"><span class="dr-label">Status</span><span class="dr-val highlight">{{ last_result.dispatch.get('status','') }}</span></div>
+        </div>
+        {% else %}
+        <div class="dispatch-result hidden" id="dispatchResult"></div>
+        {% endif %}
+
+        <!-- Claude summary -->
+        {% if last_result and last_result.final_message %}
+        <div class="summary-box" id="summaryBox">
+          <div style="font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Claude summary</div>
           {{ last_result.final_message }}
         </div>
-        {% endif %}
-        {% if last_result.dispatch %}
-        <div class="lbs" style="margin-top:10px;">Dispatch: <b>{{ last_result.dispatch.status }}</b></div>
-        {% endif %}
-        {% if last_result.error %}
-        <div class="time">Error: <span id="rescueError">{{ last_result.error }}</span></div>
-        {% endif %}
-        {% if last_result.steps %}
-        <div class="time">Tools called: {{ last_result.steps|length }}</div>
-        <pre id="rescueSteps" style="white-space:pre-wrap;font-size:12px;line-height:1.3;max-height:220px;overflow:auto;border:1px solid #134e4a;padding:10px;border-radius:10px;background:#052e1c;color:#dcfce7;">{% for s in last_result.steps %}
-{{ loop.index }}. {{ s.tool }} → {{ s.output }}
-{% endfor %}</pre>
         {% else %}
-        <div class="time">No tool steps recorded yet.</div>
+        <div class="summary-box hidden" id="summaryBox"></div>
         {% endif %}
-      </div>
-      {% endif %}
-    </div>
-  {% else %}
-    <div class="alert">No rescues yet. Trigger an alert above to run the agent.</div>
-  {% endif %}
-  </section>
-</main>
 
-<footer>FoodFlow AI · Demo console</footer>
+        <!-- Empty state (no rescues yet) -->
+        {% if not last_rescue %}
+        <div class="empty-state" id="emptyState">
+          <svg width="36" height="36" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p>No rescues yet. Trigger an alert on the left to run the autonomous agent loop.</p>
+        </div>
+        {% else %}
+        <div class="empty-state hidden" id="emptyState"></div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
-  window.DEMO_TOKEN = "{{ demo_token or '' }}";
-  window.foodflowAdmin = async (path) => {
-    const res = await fetch(path, {method:'POST', headers: window.DEMO_TOKEN ? {'x-demo-token': window.DEMO_TOKEN}:{}} );
-    const data = await res.json().catch(()=>({}));
-    if(!res.ok){
-      alert(data.error || 'Request failed');
+window.DEMO_TOKEN = "{{ demo_token or '' }}";
+
+const TOOLS = ['check_inventory','check_foodbank_capacity','query_volunteers','calculate_route','verify_compliance','dispatch_pickup'];
+
+const DETAIL_LABELS = [
+  'Check inventory surplus',
+  'Find accepting food bank',
+  'Query available volunteers',
+  'Calculate pickup route',
+  'Verify compliance (Bill Emerson Act)',
+  'Dispatch pickup & notify volunteer'
+];
+
+function headers() {
+  return window.DEMO_TOKEN ? { 'x-demo-token': window.DEMO_TOKEN } : {};
+}
+
+function setStatus(el, cls, text, dot) {
+  el.className = 'status-badge ' + cls;
+  el.innerHTML = dot ? `<span class="run-dot" aria-hidden="true"></span>${text}` : text;
+}
+
+function renderSteps(steps) {
+  const list = document.getElementById('stepList');
+  list.innerHTML = '';
+  TOOLS.forEach((tool, i) => {
+    const match = steps.find(s => s.tool === tool);
+    const div = document.createElement('div');
+    div.className = 'step-item ' + (match ? 'done' : 'waiting');
+    if (match) div.style.animationDelay = `${i * 0.09}s`;
+
+    let detail = DETAIL_LABELS[i];
+    if (match && match.output) {
+      const o = match.output;
+      if (tool === 'check_inventory') detail = `${o.total_lbs || ''}lbs surplus — ${(o.items||[]).length} item(s)`;
+      else if (tool === 'check_foodbank_capacity') detail = `${o.foodbank_name || ''} — ${o.capacity_lbs_available || ''} lbs available`;
+      else if (tool === 'query_volunteers') detail = `${o.count || ''} volunteer(s) found nearby`;
+      else if (tool === 'calculate_route') detail = `${o.distance_miles || ''} mi — ETA ${o.eta_string || ''}`;
+      else if (tool === 'verify_compliance') detail = o.compliant ? 'Compliant — Bill Emerson Act protected' : 'Non-compliant';
+      else if (tool === 'dispatch_pickup') detail = `${o.quantity_lbs || ''} lbs dispatched — volunteer ${o.volunteer_id || ''}`;
+    }
+
+    div.innerHTML = `
+      <div class="step-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="step-right">
+        <div class="step-tool">${tool}</div>
+        <div class="step-detail">${detail}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderDispatch(dispatch) {
+  const el = document.getElementById('dispatchResult');
+  if (!dispatch) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="dr-title">Rescue Dispatched</div>
+    <div class="dr-row"><span class="dr-label">Volunteer</span><span class="dr-val">${dispatch.volunteer_id || '-'}</span></div>
+    <div class="dr-row"><span class="dr-label">Quantity</span><span class="dr-val highlight">${dispatch.quantity_lbs || ''} lbs — ${dispatch.item || ''}</span></div>
+    <div class="dr-row"><span class="dr-label">Status</span><span class="dr-val highlight">${dispatch.status || ''}</span></div>`;
+}
+
+function renderSummary(msg) {
+  const el = document.getElementById('summaryBox');
+  if (!msg) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.innerHTML = `<div style="font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Claude summary</div>${msg}`;
+}
+
+function updateStats(stats) {
+  const f = (n, dec) => dec == null ? Math.round(n) : n.toFixed(dec);
+  document.getElementById('st-rescues').textContent = stats.total_pickups;
+  document.getElementById('st-lbs').textContent = f(stats.total_lbs) + ' lbs';
+  document.getElementById('st-meals').textContent = f(stats.total_meals);
+  document.getElementById('st-co2').textContent = f(stats.total_co2_kg, 1) + ' kg';
+}
+
+async function poll(rescueId, allBtns) {
+  try {
+    const r = await fetch(`/api/rescues/${rescueId}`);
+    if (!r.ok) { setTimeout(() => poll(rescueId, allBtns), 1500); return; }
+    const rescue = await r.json();
+
+    document.getElementById('rescueChip').textContent = rescueId;
+
+    const cs = document.getElementById('consoleStatus');
+    const ts = document.getElementById('triggerStatus');
+    const ra = document.getElementById('runningAnim');
+
+    if (rescue.status === 'running') {
+      setStatus(cs, 'sb-run', 'Running', true);
+      setStatus(ts, 'sb-run', 'Running', true);
+      ra.classList.remove('hidden');
+      setTimeout(() => poll(rescueId, allBtns), 1200);
       return;
     }
-    window.location.reload();
-  };
-  window.foodflowTrigger = async (locationId, btn) => {
-    try {
-      const res = await fetch(`/api/trigger/${locationId}`, {
-        method: 'POST',
-        headers: window.DEMO_TOKEN ? { 'x-demo-token': window.DEMO_TOKEN } : {}
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        btn.textContent = 'Error';
-        btn.disabled = false;
-        alert(data.error || 'Failed to trigger rescue');
-        return;
-      }
-      const rescueId = data.rescue_id;
-      // Poll rescue status so the user sees progress.
-      const poll = async () => {
-        const r = await fetch(`/api/rescues/${rescueId}`);
-        if (!r.ok) return;
-        const rescue = await r.json();
-        const statusEl = document.getElementById('rescueStatus');
-        if (statusEl) statusEl.textContent = rescue.status;
-        if (rescue.status === 'completed' || rescue.status === 'error' || rescue.status === 'timeout') {
-          btn.textContent = 'Trigger AI Rescue';
-          btn.disabled = false;
-          // Hard refresh to load parsed steps/result_json into the template.
-          window.location.reload();
-          return;
-        }
-        setTimeout(poll, 1500);
-      };
-      setTimeout(poll, 800);
-    } catch (e) {
-      btn.textContent = 'Error';
-      btn.disabled = false;
-      alert(String(e));
+
+    // Completed / error / timeout
+    ra.classList.add('hidden');
+    allBtns.forEach(b => { b.disabled = false; b.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Trigger AI Rescue'; });
+    document.getElementById('emptyState').classList.add('hidden');
+
+    if (rescue.status === 'completed') {
+      setStatus(cs, 'sb-ok', 'Completed');
+      setStatus(ts, 'sb-ok', 'Ready');
+    } else if (rescue.status === 'timeout') {
+      setStatus(cs, 'sb-warn', 'Timeout');
+      setStatus(ts, 'sb-idle', 'Ready');
+    } else {
+      setStatus(cs, 'sb-err', rescue.status);
+      setStatus(ts, 'sb-idle', 'Ready');
     }
-  };
+
+    let result = null;
+    try { result = JSON.parse(rescue.result_json); } catch(e) {}
+    if (result) {
+      renderSteps(result.steps || []);
+      renderDispatch(result.dispatch);
+      renderSummary(result.final_message);
+    }
+
+    // Refresh live stats
+    try {
+      const sr = await fetch('/api/stats');
+      if (sr.ok) updateStats(await sr.json());
+    } catch(e) {}
+
+  } catch(e) {
+    setTimeout(() => poll(rescueId, allBtns), 2000);
+  }
+}
+
+async function triggerRescue(locationId, itemName, btn) {
+  const allBtns = document.querySelectorAll('.trigger-btn');
+  allBtns.forEach(b => { b.disabled = true; });
+  btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>&nbsp;Running…';
+
+  const cs = document.getElementById('consoleStatus');
+  const ts = document.getElementById('triggerStatus');
+  const ra = document.getElementById('runningAnim');
+
+  setStatus(cs, 'sb-run', 'Starting', true);
+  setStatus(ts, 'sb-run', 'Running', true);
+  document.getElementById('summaryBox').classList.add('hidden');
+  document.getElementById('dispatchResult').classList.add('hidden');
+  document.getElementById('emptyState').classList.add('hidden');
+
+  // Reset steps to waiting
+  renderSteps([]);
+  document.getElementById('stepList').querySelectorAll('.step-item').forEach((el, i) => {
+    el.className = 'step-item ' + (i === 0 ? 'active' : 'waiting');
+  });
+  ra.classList.remove('hidden');
+
+  try {
+    const res = await fetch(`/api/trigger/${locationId}`, { method: 'POST', headers: headers() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'trigger failed');
+    document.getElementById('rescueChip').textContent = data.rescue_id;
+    poll(data.rescue_id, Array.from(allBtns));
+  } catch(e) {
+    ra.classList.add('hidden');
+    setStatus(cs, 'sb-err', 'Error');
+    setStatus(ts, 'sb-idle', 'Ready');
+    allBtns.forEach(b => { b.disabled = false; });
+    btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Trigger AI Rescue';
+    renderSummary('Error: ' + String(e));
+  }
+}
+
+async function adminAction(path) {
+  try {
+    const r = await fetch(path, { method: 'POST', headers: headers() });
+    if (r.ok) window.location.reload();
+    else {
+      const d = await r.json().catch(() => ({}));
+      alert(d.error || 'Request failed');
+    }
+  } catch(e) { alert(String(e)); }
+}
 </script>
 </body>
 </html>

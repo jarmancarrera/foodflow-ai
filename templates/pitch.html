@@ -95,6 +95,55 @@ body{font-family:var(--fb);color:var(--ink)}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(220,252,231,.08);border:1px solid rgba(220,252,231,.18);border-radius:100px;padding:5px 14px 5px 9px;font-size:11px;font-weight:500;color:var(--mint);letter-spacing:.04em;margin-bottom:28px}
 .hero-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.85)}}
+/* ── STEP TRACE (demo slide) ── */
+.step-list-p{display:flex;flex-direction:column;gap:5px}
+.step-item-p{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;border-radius:9px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  opacity:.28;
+}
+.step-item-p.s-done{opacity:1;border-color:rgba(22,163,74,.28);background:rgba(22,163,74,.06)}
+.step-item-p.s-active{opacity:1;border-color:rgba(165,243,252,.28);background:rgba(165,243,252,.06)}
+.snum-p{
+  width:20px;height:20px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:9px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.35);margin-top:1px;
+}
+.step-item-p.s-done .snum-p{background:rgba(22,163,74,.2);border-color:rgba(22,163,74,.4);color:#4ade80}
+.step-item-p.s-active .snum-p{background:rgba(165,243,252,.15);border-color:rgba(165,243,252,.4);color:#a5f3fc}
+.stool-p{font-family:var(--fm);font-size:11px;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:2px}
+.step-item-p.s-done .stool-p{color:#4ade80}
+.step-item-p.s-active .stool-p{color:#a5f3fc}
+.sdetail-p{font-size:10px;color:rgba(255,255,255,.35);line-height:1.4}
+.step-item-p.s-done .sdetail-p{color:rgba(220,252,231,.5)}
+.dispatch-p{
+  margin-top:10px;padding:12px;border-radius:9px;
+  background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);
+  display:none;
+}
+.dispatch-p.visible{display:block}
+.dispatch-p-title{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);margin-bottom:7px;font-family:var(--fm)}
+.dispatch-p-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0}
+.dispatch-p-row span:first-child{color:rgba(255,255,255,.38)}
+.dispatch-p-row span:last-child{color:var(--white);font-weight:600}
+.summary-p{
+  margin-top:8px;padding:11px;border-radius:9px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  font-size:11px;color:rgba(255,255,255,.6);line-height:1.6;
+  display:none;
+}
+.summary-p.visible{display:block}
+.spinner-p{
+  display:inline-block;width:12px;height:12px;border-radius:50%;
+  border:1.5px solid rgba(165,243,252,.2);border-top-color:#a5f3fc;
+  animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:900px){
   .slide{padding:80px 28px 68px}
   .two-col{grid-template-columns:1fr;gap:28px}
@@ -107,18 +156,15 @@ body{font-family:var(--fb);color:var(--ink)}
 <body>
 <svg style="display:none" aria-hidden="true">
   <defs>
-    <symbol id="logo" viewBox="0 0 40 40">
-      <rect width="40" height="40" rx="9" fill="#0A3622"/>
-      <path d="M6 20L10 20L10 14L13 14" stroke="#16A34A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.65"/>
-      <path d="M34 20L30 20L30 14L27 14" stroke="#16A34A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.65"/>
-      <circle cx="6" cy="20" r="1.5" fill="#16A34A" opacity="0.65"/>
-      <circle cx="34" cy="20" r="1.5" fill="#16A34A" opacity="0.65"/>
-      <path d="M13 22L27 22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M13 22Q13 31 20 31Q27 31 27 22" fill="none" stroke="white" stroke-width="2.2"/>
-      <path d="M20 22C20 22 17.2 17.8 18.6 13.8C20 9.8 24.2 11.2 23 15.2C22.4 17.4 20 22 20 22Z" fill="#DCFCE7"/>
-      <path d="M20 22L20 15.5" stroke="#16A34A" stroke-width="1" stroke-linecap="round" opacity="0.9"/>
-      <circle cx="13" cy="14" r="1.3" fill="#DCFCE7" opacity="0.8"/>
-      <circle cx="27" cy="14" r="1.3" fill="#DCFCE7" opacity="0.8"/>
+    <symbol id="logo" viewBox="0 0 1024 1024">
+      <rect x="112" y="112" width="800" height="800" rx="200" fill="#0A3622"/>
+      <path d="M294 496 L730 496 C719 642 618 736 512 736 C406 736 305 642 294 496 Z" fill="white"/>
+      <path d="M420 452 C382 410 398 348 466 316 C442 377 475 423 420 452 Z" fill="white"/>
+      <g fill="none" stroke="#0A3622" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M342 558 H630"/><path d="M342 628 H548"/>
+      </g>
+      <circle cx="650" cy="558" r="31" fill="white" stroke="#0A3622" stroke-width="28"/>
+      <circle cx="575" cy="628" r="31" fill="white" stroke="#0A3622" stroke-width="28"/>
     </symbol>
     <symbol id="chev-r" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
     <symbol id="chev-l" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></symbol>
@@ -224,12 +270,59 @@ body{font-family:var(--fb);color:var(--ink)}
             Tip: if no volunteers are available, the agent will block dispatch and explain the next action.
           </div>
         </div>
-        <div class="panel">
-          <div class="h3" style="font-size:14px;margin-bottom:10px">Result</div>
-          <div class="body" style="margin-bottom:10px;color:rgba(255,255,255,.65)">
-            Latest rescue: <span class="mono" id="rescueId">{{ last_rescue.rescue_id if last_rescue else "-" }}</span>
+        <div class="panel" style="display:flex;flex-direction:column;gap:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="h3" style="font-size:14px">Agent Trace</div>
+            <span class="mono" id="rescueId" style="font-size:10px;color:rgba(255,255,255,.35)">{{ last_rescue.rescue_id if last_rescue else "—" }}</span>
           </div>
-          <pre id="resultBox">{{ last_result.final_message if last_result and last_result.final_message else "Click a button to run a rescue." }}</pre>
+          <div class="step-list-p" id="stepList">
+            {% set tlabels = {
+              'check_inventory':'Inventory Check',
+              'check_foodbank_capacity':'Foodbank Capacity',
+              'query_volunteers':'Volunteer Query',
+              'calculate_route':'Route Calculation',
+              'verify_compliance':'Compliance Check',
+              'dispatch_pickup':'Dispatch Pickup'
+            } %}
+            {% set torder = ['check_inventory','check_foodbank_capacity','query_volunteers','calculate_route','verify_compliance','dispatch_pickup'] %}
+            {% if last_result and last_result.steps %}
+              {% for step in last_result.steps %}
+              <div class="step-item-p s-done">
+                <div class="snum-p">{{ loop.index }}</div>
+                <div>
+                  <div class="stool-p">{{ tlabels.get(step.tool, step.tool) }}</div>
+                  <div class="sdetail-p">
+                    {%- if step.tool == 'check_inventory' and step.output and not step.output.error -%}{{ step.output.item }} &mdash; {{ step.output.quantity_lbs }} lbs
+                    {%- elif step.tool == 'check_foodbank_capacity' and step.output and not step.output.error -%}{{ step.output.name }} &mdash; {{ step.output.capacity_lbs }} lbs cap
+                    {%- elif step.tool == 'query_volunteers' and step.output and not step.output.error -%}{{ step.output.name }} &mdash; {{ step.output.distance_miles }} mi
+                    {%- elif step.tool == 'calculate_route' and step.output and not step.output.error -%}ETA {{ step.output.eta_minutes }} min
+                    {%- elif step.tool == 'verify_compliance' and step.output and not step.output.error -%}{{ step.output.coverage or 'Bill Emerson Act covered' }}
+                    {%- elif step.tool == 'dispatch_pickup' and step.output and not step.output.error -%}{{ step.output.quantity_lbs }} lbs dispatched
+                    {%- else -%}done{%- endif -%}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              {% for tool in torder %}
+              <div class="step-item-p">
+                <div class="snum-p">{{ loop.index }}</div>
+                <div><div class="stool-p">{{ tlabels[tool] }}</div><div class="sdetail-p">waiting</div></div>
+              </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="dispatch-p {% if last_result and last_result.dispatch %}visible{% endif %}" id="dispatchP">
+            <div class="dispatch-p-title">Dispatch Confirmed</div>
+            {% if last_result and last_result.dispatch %}
+            <div class="dispatch-p-row"><span>Volunteer</span><span>{{ last_result.dispatch.volunteer_name or '—' }}</span></div>
+            <div class="dispatch-p-row"><span>Quantity</span><span>{{ last_result.dispatch.quantity_lbs or '—' }} lbs</span></div>
+            <div class="dispatch-p-row"><span>ETA</span><span>{{ last_result.dispatch.eta_minutes or '—' }} min</span></div>
+            {% endif %}
+          </div>
+          <div class="summary-p {% if last_result and last_result.final_message %}visible{% endif %}" id="summaryP">
+            {{ last_result.final_message if last_result and last_result.final_message else "" }}
+          </div>
         </div>
       </div>
     </div>
@@ -318,37 +411,106 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(cur - 1); }
 });
 
-async function triggerRescue(locationId, btn){
+const TOOL_LABELS = {
+  check_inventory:'Inventory Check',
+  check_foodbank_capacity:'Foodbank Capacity',
+  query_volunteers:'Volunteer Query',
+  calculate_route:'Route Calculation',
+  verify_compliance:'Compliance Check',
+  dispatch_pickup:'Dispatch Pickup'
+};
+const TOOL_ORDER = Object.keys(TOOL_LABELS);
+
+function stepDetail(tool, output) {
+  if (!output || output.error) return output ? output.error : '';
+  if (tool === 'check_inventory')       return `${output.item||''} — ${output.quantity_lbs||''} lbs`;
+  if (tool === 'check_foodbank_capacity') return `${output.name||''} — ${output.capacity_lbs||''} lbs cap`;
+  if (tool === 'query_volunteers')      return `${output.name||''} — ${output.distance_miles||''} mi`;
+  if (tool === 'calculate_route')       return `ETA ${output.eta_minutes||''} min`;
+  if (tool === 'verify_compliance')     return output.coverage || 'Bill Emerson Act covered';
+  if (tool === 'dispatch_pickup')       return `${output.quantity_lbs||''} lbs dispatched`;
+  return '';
+}
+
+function renderStepsP(steps) {
+  const list = document.getElementById('stepList');
+  list.innerHTML = '';
+  TOOL_ORDER.forEach((tool, i) => {
+    const step = steps && steps[i];
+    const done = step && (!step.output || !step.output.error);
+    const errored = step && step.output && step.output.error;
+    const cls = done ? 's-done' : (errored ? '' : '');
+    const detail = step ? stepDetail(tool, step.output) : 'waiting';
+    list.innerHTML += `<div class="step-item-p ${cls}">
+      <div class="snum-p">${i+1}</div>
+      <div><div class="stool-p">${TOOL_LABELS[tool]}</div>
+      <div class="sdetail-p">${detail}</div></div>
+    </div>`;
+  });
+}
+
+function renderDispatchP(dispatch) {
+  const el = document.getElementById('dispatchP');
+  if (!dispatch) { el.classList.remove('visible'); return; }
+  el.classList.add('visible');
+  el.innerHTML = `<div class="dispatch-p-title">Dispatch Confirmed</div>
+    <div class="dispatch-p-row"><span>Volunteer</span><span>${dispatch.volunteer_name||'—'}</span></div>
+    <div class="dispatch-p-row"><span>Quantity</span><span>${dispatch.quantity_lbs||'—'} lbs</span></div>
+    <div class="dispatch-p-row"><span>ETA</span><span>${dispatch.eta_minutes||'—'} min</span></div>`;
+}
+
+function renderSummaryP(msg) {
+  const el = document.getElementById('summaryP');
+  if (!msg) { el.classList.remove('visible'); return; }
+  el.classList.add('visible');
+  el.textContent = msg;
+}
+
+async function triggerRescue(locationId, btn) {
   const status = document.getElementById('statusBadge');
   const rescueIdEl = document.getElementById('rescueId');
-  const box = document.getElementById('resultBox');
-  try{
-    btn.disabled = true;
-    status.className = 'badge b-run';
-    status.textContent = 'running';
-    const res = await fetch(`/api/trigger/${locationId}`, {method:'POST', headers: window.DEMO_TOKEN ? {'x-demo-token':window.DEMO_TOKEN}:{}} );
+  document.querySelectorAll('.demo-btn').forEach(b => b.disabled = true);
+  status.className = 'badge b-run';
+  status.innerHTML = '<span class="spinner-p"></span>running';
+  renderStepsP(null);
+  renderDispatchP(null);
+  renderSummaryP(null);
+  try {
+    const res = await fetch(`/api/trigger/${locationId}`, {
+      method: 'POST',
+      headers: window.DEMO_TOKEN ? {'x-demo-token': window.DEMO_TOKEN} : {}
+    });
     const data = await res.json();
-    if(!res.ok){ throw new Error(data.error || 'trigger failed'); }
-    rescueIdEl.textContent = data.rescue_id;
+    if (!res.ok) throw new Error(data.error || 'trigger failed');
     const rid = data.rescue_id;
+    rescueIdEl.textContent = rid;
     const poll = async () => {
-      const r = await fetch(`/api/rescues/${rid}`);
-      if(!r.ok) return;
-      const rescue = await r.json();
-      if(rescue.status === 'running'){ setTimeout(poll, 1200); return; }
-      const rr = await fetch(`/api/rescues/${rid}`);
-      const done = await rr.json();
-      status.className = rescue.status === 'completed' ? 'badge b-ok' : (rescue.status === 'timeout' ? 'badge b-warn' : 'badge b-err');
-      status.textContent = rescue.status;
-      // Reload page data so Jinja variables are fresh, but keep on the demo slide.
-      window.location.href = '/pitch#demo';
+      try {
+        const r = await fetch(`/api/rescues/${rid}`);
+        if (!r.ok) { setTimeout(poll, 1200); return; }
+        const rescue = await r.json();
+        let result = null;
+        try { result = JSON.parse(rescue.result_json); } catch(e){}
+        if (result && result.steps) renderStepsP(result.steps);
+        if (rescue.status === 'running') { setTimeout(poll, 1200); return; }
+        // Final state
+        if (result) {
+          renderStepsP(result.steps);
+          renderDispatchP(result.dispatch);
+          renderSummaryP(result.final_message);
+        }
+        status.className = rescue.status === 'completed' ? 'badge b-ok'
+          : rescue.status === 'timeout' ? 'badge b-warn' : 'badge b-err';
+        status.textContent = rescue.status;
+        document.querySelectorAll('.demo-btn').forEach(b => b.disabled = false);
+      } catch(e) { setTimeout(poll, 1800); }
     };
     setTimeout(poll, 900);
-  }catch(e){
+  } catch(e) {
     status.className = 'badge b-err';
     status.textContent = 'error';
-    box.textContent = String(e);
-    btn.disabled = false;
+    renderSummaryP(String(e));
+    document.querySelectorAll('.demo-btn').forEach(b => b.disabled = false);
   }
 }
 </script>

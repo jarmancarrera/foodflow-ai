@@ -1,234 +1,670 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>FoodFlow AI — Ops Dashboard</title>
-  <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A3622">
+<title>FoodFlow AI &mdash; Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --forest:#0A3622;--forest-d:#061d13;--green:#16A34A;--green-lt:#22c55e;
+  --mint:#DCFCE7;--fog:#F8FAFC;--fog2:#F1F5F9;--ink:#0F172A;
+  --slate:#475569;--muted:#94A3B8;--line:#E2E8F0;
+  --white:#FFFFFF;--gold:#CA8A04;--red:#DC2626;
+  --fd:'DM Serif Display',Georgia,serif;
+  --fb:'Sora',system-ui,sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--fb);background:var(--fog2);color:var(--ink);min-height:100vh}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--forest);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  box-shadow:0 2px 16px rgba(0,0,0,.2);
+}
+.nav-inner{
+  max-width:1380px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:60px;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-icon{width:30px;height:30px;flex-shrink:0}
+.nav-title{font-weight:700;font-size:14px;color:var(--white);letter-spacing:.01em}
+.nav-title sup{font-size:9px;font-weight:400;color:var(--mint);letter-spacing:.1em}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{
+  font-size:12px;font-weight:500;color:rgba(255,255,255,.6);
+  padding:6px 12px;border-radius:6px;transition:all .2s;
+  text-decoration:none;letter-spacing:.01em;
+}
+.nav-links a:hover{color:var(--white);background:rgba(255,255,255,.08)}
+.nav-links a.active{color:var(--mint);background:rgba(220,252,231,.1)}
+.nav-links a:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.nav-pill{
+  background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.3);
+  color:var(--mint);padding:5px 12px;border-radius:100px;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+}
+
+/* ── LAYOUT ── */
+.page{max-width:1380px;margin:0 auto;padding:28px 28px 60px}
+
+/* ── STATS STRIP ── */
+.stats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:24px;
+}
+.stat-tile{
+  background:var(--white);border:1px solid var(--line);border-radius:14px;
+  padding:20px 20px 16px;box-shadow:0 1px 4px rgba(0,0,0,.04);
+  position:relative;overflow:hidden;
+}
+.stat-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-green::before{background:var(--green)}
+.st-gold::before{background:var(--gold)}
+.st-red::before{background:var(--red)}
+.st-slate::before{background:var(--slate)}
+.stat-tile-val{
+  font-family:var(--fd);font-size:clamp(26px,3vw,38px);
+  letter-spacing:-.02em;line-height:1;margin-bottom:5px;color:var(--forest);
+}
+.stat-tile-lbl{font-size:12px;color:var(--muted);font-weight:500}
+
+/* ── SECTION HEADING ── */
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.section-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.01em}
+.section-count{
+  font-family:var(--fm);font-size:11px;color:var(--muted);
+  background:var(--fog2);border:1px solid var(--line);
+  padding:3px 8px;border-radius:100px;
+}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--white);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 1px 8px rgba(0,0,0,.05);overflow:hidden;
+  margin-bottom:20px;
+}
+.panel-head{
+  padding:14px 20px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--fog);
+}
+.panel-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.01em}
+.panel-body{padding:0}
+
+/* ── TABLES ── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  font-size:11px;font-weight:600;color:var(--muted);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:10px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+  background:var(--fog);white-space:nowrap;
+}
+.data-table td{
+  padding:12px 16px;font-size:13px;color:var(--ink);
+  border-bottom:1px solid var(--line);vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr{transition:background .15s}
+.data-table tbody tr:hover{background:var(--fog)}
+.data-table .mono{font-family:var(--fm);font-size:11px;color:var(--slate)}
+.data-table .muted{color:var(--muted);font-size:12px}
+
+/* ── STATUS BADGES ── */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:100px;white-space:nowrap;
+}
+.badge.ok  {background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.badge.run {background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.badge.err {background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.badge.warn{background:#fef9c3;color:#a16207;border:1px solid #fef08a}
+.badge.idle{background:var(--fog2);color:var(--muted);border:1px solid var(--line)}
+.badge.avail{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.badge.busy {background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.run-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse-dot 1.2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* ── RESCUE LINK ── */
+.rescue-link{
+  font-family:var(--fm);font-size:12px;color:var(--green);
+  text-decoration:none;font-weight:600;
+}
+.rescue-link:hover{color:var(--forest);text-decoration:underline}
+.rescue-link.selected-row{color:var(--white)}
+tr.selected-row{background:var(--forest) !important}
+tr.selected-row td{color:rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.1)}
+tr.selected-row .muted{color:rgba(255,255,255,.45)}
+tr.selected-row .mono{color:rgba(255,255,255,.6)}
+tr.selected-row .badge.ok{background:rgba(220,252,231,.2);color:var(--mint);border-color:rgba(220,252,231,.3)}
+tr.selected-row .badge.run{background:rgba(165,243,252,.15);color:#a5f3fc;border-color:rgba(165,243,252,.3)}
+
+/* ── RESCUE DETAIL PANEL ── */
+.detail-panel{
+  background:var(--forest-d);border:1px solid rgba(255,255,255,.08);border-radius:16px;
+  overflow:hidden;margin-bottom:20px;
+}
+.detail-head{
+  padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.2);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.detail-title{
+  font-family:var(--fd);font-size:20px;color:var(--white);letter-spacing:-.01em;
+}
+.detail-meta{
+  font-family:var(--fm);font-size:11px;color:rgba(255,255,255,.35);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  padding:4px 12px;border-radius:100px;
+}
+.detail-body{padding:20px 22px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.detail-col-title{
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-bottom:12px;font-family:var(--fm);
+}
+
+/* Rescue metadata rows */
+.meta-rows{display:flex;flex-direction:column;gap:8px}
+.meta-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;border-radius:8px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+}
+.meta-label{font-size:12px;color:rgba(255,255,255,.4)}
+.meta-val{font-size:12px;font-weight:600;color:var(--white);font-family:var(--fm)}
+.meta-val.highlight{color:var(--mint)}
+
+/* Dispatch card in detail */
+.dispatch-card{
+  padding:12px;border-radius:10px;
+  background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);
+  margin-top:12px;
+}
+.dispatch-card .meta-val{color:var(--mint)}
+
+/* Step timeline in detail */
+.step-list{display:flex;flex-direction:column;gap:6px}
+.step-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:11px 14px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);
+  transition:all .25s var(--ease);
+}
+.step-item.done{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06)}
+.step-item.err{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.06)}
+.step-num{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.4);margin-top:1px;
+}
+.step-item.done .step-num{background:rgba(22,163,74,.2);border-color:rgba(22,163,74,.4);color:var(--green-lt)}
+.step-item.err .step-num{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35);color:#fca5a5}
+.step-right{flex:1;min-width:0}
+.step-tool{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);font-family:var(--fm);margin-bottom:3px}
+.step-item.done .step-tool{color:var(--green-lt)}
+.step-item.err .step-tool{color:#fca5a5}
+.step-detail{font-size:11px;color:rgba(255,255,255,.38);line-height:1.5}
+.step-item.done .step-detail{color:rgba(220,252,231,.55)}
+
+/* Claude summary in detail */
+.summary-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.18);
+  font-size:13px;color:rgba(255,255,255,.7);line-height:1.65;
+}
+.summary-label{
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:8px;font-family:var(--fm);
+}
+
+/* ── VOLUNTEER GRID ── */
+.vol-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;padding:20px;
+}
+.vol-card{
+  border:1.5px solid var(--line);border-radius:12px;
+  padding:14px 16px;background:var(--fog);transition:all .2s;
+}
+.vol-card:hover{border-color:rgba(22,163,74,.3);box-shadow:0 2px 12px rgba(22,163,74,.08)}
+.vol-card.busy{border-color:rgba(220,38,38,.15);background:#fff8f8}
+.vol-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.vol-phone{font-family:var(--fm);font-size:11px;color:var(--muted);margin-bottom:10px}
+.vol-id{font-family:var(--fm);font-size:10px;color:var(--muted)}
+
+/* ── EMPTY STATE ── */
+.empty-row td{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+.no-data{padding:32px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ── REFRESH BAR ── */
+.refresh-bar{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;color:rgba(255,255,255,.5);
+  padding:6px 14px;background:rgba(255,255,255,.04);
+  border-radius:100px;
+}
+.refresh-bar span{font-family:var(--fm);font-size:11px}
+
+/* ── CLOSE DETAIL BUTTON ── */
+.close-detail{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;color:rgba(255,255,255,.5);
+  text-decoration:none;padding:6px 14px;border-radius:8px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  transition:all .2s;
+}
+.close-detail:hover{color:var(--white);background:rgba(255,255,255,.12)}
+
+/* ── ANIM ── */
+@keyframes fade-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.detail-panel{animation:fade-in .35s var(--ease) both}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.detail-body{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-strip{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.stats-strip{grid-template-columns:1fr 1fr}.page{padding:16px 16px 48px}}
+</style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">🌿</div>
-    <div>
-      <div class="title">FoodFlow AI</div>
-      <div class="subtitle">Operations dashboard</div>
+
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 1024 1024">
+      <rect x="112" y="112" width="800" height="800" rx="200" fill="#0A3622"/>
+      <path d="M294 496 L730 496 C719 642 618 736 512 736 C406 736 305 642 294 496 Z" fill="white"/>
+      <path d="M420 452 C382 410 398 348 466 316 C442 377 475 423 420 452 Z" fill="white"/>
+      <g fill="none" stroke="#0A3622" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M342 558 H630"/><path d="M342 628 H548"/>
+      </g>
+      <circle cx="650" cy="558" r="31" fill="white" stroke="#0A3622" stroke-width="28"/>
+      <circle cx="575" cy="628" r="31" fill="white" stroke="#0A3622" stroke-width="28"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand" aria-label="FoodFlow AI home">
+      <svg class="nav-icon"><use href="#logo"/></svg>
+      <span class="nav-title">FoodFlow<sup>AI</sup></span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Console</a>
+      <a href="/ops" class="active" aria-current="page">Operations</a>
+      <a href="/pitch">Pitch</a>
+      <a href="/docs">API</a>
+      {% if demo_token %}
+        <a href="/api/report?token={{ demo_token }}" class="nav-pill">ESG&nbsp;PDF</a>
+      {% else %}
+        <a href="/api/report" class="nav-pill">ESG&nbsp;PDF</a>
+      {% endif %}
     </div>
   </div>
-  <div class="header-right">
-    <a class="link" href="/">Rescue Console</a>
-    <a class="link" href="/docs">API Docs</a>
-    {% if demo_token %}
-      <a class="link" href="/api/report?token={{ demo_token }}">Download ESG PDF</a>
-    {% else %}
-      <a class="link" href="/api/report">Download ESG PDF</a>
-    {% endif %}
+</nav>
+
+<div class="page">
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip" role="region" aria-label="Operational metrics">
+    <div class="stat-tile st-green">
+      <div class="stat-tile-val">{{ rescues | length }}</div>
+      <div class="stat-tile-lbl">Total rescues</div>
+    </div>
+    <div class="stat-tile st-gold">
+      <div class="stat-tile-val">{{ pickups | length }}</div>
+      <div class="stat-tile-lbl">Dispatched pickups</div>
+    </div>
+    <div class="stat-tile st-slate">
+      <div class="stat-tile-val">
+        {% set total_lbs = namespace(v=0) %}
+        {% for p in pickups %}{% set total_lbs.v = total_lbs.v + (p.quantity_lbs or 0) %}{% endfor %}
+        {{ "%.0f"|format(total_lbs.v) }}
+        <small style="font-size:14px;font-family:var(--fb)">lbs</small>
+      </div>
+      <div class="stat-tile-lbl">Pounds rescued</div>
+    </div>
+    <div class="stat-tile {% if volunteers | selectattr('available') | list | length > 0 %}st-green{% else %}st-red{% endif %}">
+      <div class="stat-tile-val">{{ volunteers | selectattr('available') | list | length }}</div>
+      <div class="stat-tile-lbl">Drivers available</div>
+    </div>
   </div>
-</header>
 
-<main>
-  <section class="hero">
-    <div>
-      <h2>Ops Dashboard</h2>
-      <p class="muted">
-        Everything saved in <b>SQLite</b>: rescues, the full Claude trace, pickups, inventory, and volunteers.
-      </p>
-      <div class="pill-row">
-        <div class="pill"><b>DB:</b> foodflow.db</div>
-        <div class="pill"><b>Trace:</b> per rescue_id</div>
-        <div class="pill"><b>Tip:</b> click a rescue_id to inspect</div>
+  <!-- RESCUE DETAIL (shown when a rescue is selected) -->
+  {% if selected %}
+  <div class="detail-panel" role="region" aria-label="Rescue detail">
+    <div class="detail-head">
+      <div>
+        <div class="detail-title">{{ selected.location_name or selected.location_id }}</div>
+        <div class="detail-meta" style="margin-top:6px">{{ selected.rescue_id }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        {% if selected.status == 'running' %}
+          <span class="badge run"><span class="run-dot"></span>Running</span>
+        {% elif selected.status == 'completed' %}
+          <span class="badge ok">Completed</span>
+        {% elif selected.status == 'error' %}
+          <span class="badge err">Error</span>
+        {% else %}
+          <span class="badge warn">{{ selected.status }}</span>
+        {% endif %}
+        <a href="/ops" class="close-detail" aria-label="Close rescue detail">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Close
+        </a>
       </div>
     </div>
-    <div class="kpi-row">
-      <div class="kpi">
-        <div class="k">Total rescues</div>
-        <div class="v">{{ rescues|length }}</div>
-        <div class="s">latest 100 shown</div>
-      </div>
-      <div class="kpi">
-        <div class="k">Pickups</div>
-        <div class="v">{{ pickups|length }}</div>
-        <div class="s">latest 200 shown</div>
-      </div>
-      <div class="kpi">
-        <div class="k">Food rescued</div>
-        <div class="v">{{ "%.0f"|format((pickups|sum(attribute='quantity_lbs')) if pickups else 0) }} lbs</div>
-        <div class="s">from pickups table</div>
-      </div>
-      <div class="kpi">
-        <div class="k">Available drivers</div>
-        <div class="v">{{ volunteers|selectattr('available')|list|length }}</div>
-        <div class="s">currently available</div>
-      </div>
-    </div>
-  </section>
 
-  <section class="section">
-    <h3>Rescues (latest)</h3>
-    {% if selected and selected.rescue_id %}
-    <div class="two-col" style="margin-bottom:12px;">
-      <div class="card">
-        <div class="item">Selected rescue</div>
-        <div class="time">Rescue ID: <code>{{ selected.rescue_id }}</code></div>
-        <div class="time">Location: <b>{{ selected.location_name or selected.location_id }}</b></div>
-        <div class="time">Status:
-          {% if selected.status == 'completed' %}
-            <span class="badge ok">completed</span>
-          {% elif selected.status == 'running' %}
-            <span class="badge run">running</span>
-          {% elif selected.status == 'error' %}
-            <span class="badge err">error</span>
-          {% else %}
-            <span class="badge warn">{{ selected.status }}</span>
+    <div class="detail-body">
+      <!-- Left: metadata + dispatch -->
+      <div>
+        <div class="detail-col-title">Rescue Record</div>
+        <div class="meta-rows">
+          <div class="meta-row">
+            <span class="meta-label">Location</span>
+            <span class="meta-val">{{ selected.location_name or selected.location_id }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Started</span>
+            <span class="meta-val">{{ selected.started_at or '—' }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Completed</span>
+            <span class="meta-val">{{ selected.completed_at or '—' }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Status</span>
+            <span class="meta-val highlight">{{ selected.status }}</span>
+          </div>
+          {% if selected_result and selected_result.dispatch %}
+          <div class="meta-row">
+            <span class="meta-label">Quantity</span>
+            <span class="meta-val highlight">{{ selected_result.dispatch.quantity_lbs or '—' }} lbs</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Volunteer</span>
+            <span class="meta-val">{{ selected_result.dispatch.volunteer_name or '—' }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">ETA</span>
+            <span class="meta-val">{{ selected_result.dispatch.eta_minutes or '—' }} min</span>
+          </div>
           {% endif %}
         </div>
-        <div class="time muted">Started: {{ selected.started_at }}</div>
-        <div class="time muted">Completed: {{ selected.completed_at or "-" }}</div>
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="btn" href="/api/rescues/{{ selected.rescue_id }}">View JSON</a>
-          <a class="btn" href="/ops">Clear selection</a>
+
+        {% if selected_result and selected_result.final_message %}
+        <div class="dispatch-card" style="margin-top:16px">
+          <div class="summary-label">Agent Summary</div>
+          <p style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.6">
+            {{ selected_result.final_message }}
+          </p>
         </div>
-      </div>
-      {% if selected_result %}
-      <div class="card">
-        <div class="item">Claude summary</div>
-        {% if selected_result.final_message %}
-        <div class="time" style="margin-top:6px;color:#1b2434;line-height:1.4;">
-          {{ selected_result.final_message }}
-        </div>
-        {% else %}
-        <div class="time muted">No final_message saved yet.</div>
         {% endif %}
-        {% if selected_result.steps %}
-        <div class="time" style="margin-top:10px;">Tool timeline</div>
+      </div>
+
+      <!-- Right: agent tool trace -->
+      <div>
+        <div class="detail-col-title">Agent Tool Trace</div>
+        {% if selected_result and selected_result.steps %}
         <div class="step-list">
-          {% for s in selected_result.steps %}
-          <div class="step">
-            <div class="t">{{ loop.index }}. {{ s.tool }}</div>
-            <div class="d">{{ s.output }}</div>
+          {% set tool_labels = {
+            'check_inventory': 'Inventory Check',
+            'check_foodbank_capacity': 'Foodbank Capacity',
+            'query_volunteers': 'Volunteer Query',
+            'calculate_route': 'Route Calculation',
+            'verify_compliance': 'Compliance Check',
+            'dispatch_pickup': 'Dispatch Pickup'
+          } %}
+          {% for step in selected_result.steps %}
+          <div class="step-item {% if step.output and not step.output.error %}done{% elif step.output and step.output.error %}err{% endif %}">
+            <div class="step-num">{{ loop.index }}</div>
+            <div class="step-right">
+              <div class="step-tool">{{ tool_labels.get(step.tool, step.tool) }}</div>
+              <div class="step-detail">
+                {% if step.tool == 'check_inventory' and step.output and not step.output.error %}
+                  {{ step.output.item or '' }} &mdash; {{ step.output.quantity_lbs or '' }} lbs available
+                {% elif step.tool == 'check_foodbank_capacity' and step.output and not step.output.error %}
+                  {{ step.output.name or '' }} &mdash; {{ step.output.capacity_lbs or '' }} lbs capacity
+                {% elif step.tool == 'query_volunteers' and step.output and not step.output.error %}
+                  {{ step.output.name or '' }} &mdash; {{ step.output.distance_miles or '' }} mi away
+                {% elif step.tool == 'calculate_route' and step.output and not step.output.error %}
+                  ETA {{ step.output.eta_minutes or '' }} min &mdash; {{ step.output.distance_miles or '' }} mi
+                {% elif step.tool == 'verify_compliance' and step.output and not step.output.error %}
+                  {{ step.output.coverage or 'Bill Emerson Act covered' }}
+                {% elif step.tool == 'dispatch_pickup' and step.output and not step.output.error %}
+                  SMS sent &mdash; {{ step.output.quantity_lbs or '' }} lbs dispatched
+                {% elif step.output and step.output.error %}
+                  {{ step.output.error }}
+                {% else %}
+                  {{ step.tool }}
+                {% endif %}
+              </div>
+            </div>
           </div>
           {% endfor %}
         </div>
+        {% else %}
+        <div style="padding:20px;color:rgba(255,255,255,.25);font-size:13px">No tool trace available.</div>
         {% endif %}
       </div>
-      {% endif %}
     </div>
-    {% endif %}
-    <div class="card">
-      <table class="table">
+  </div>
+  {% endif %}
+
+  <!-- RESCUES TABLE -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Rescue Log</span>
+      <span class="section-count">{{ rescues | length }} records</span>
+    </div>
+    <div class="panel-body">
+      {% if rescues %}
+      <table class="data-table" aria-label="Rescue log">
         <thead>
           <tr>
-            <th>rescue_id</th>
-            <th>location</th>
-            <th>status</th>
-            <th>started</th>
-            <th>completed</th>
+            <th>Rescue ID</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Started</th>
+            <th>Completed</th>
           </tr>
         </thead>
         <tbody>
-        {% for r in rescues %}
-          <tr>
-            <td><a class="link" style="color:#0b1220;border-bottom-color:#cbd5e1" href="/ops?rescue_id={{ r.rescue_id }}"><code>{{ r.rescue_id }}</code></a></td>
-            <td>{{ r.location_name or r.location_id }}</td>
+          {% for r in rescues %}
+          <tr {% if selected and selected.rescue_id == r.rescue_id %}class="selected-row"{% endif %}>
             <td>
-              {% if r.status == 'completed' %}
-                <span class="badge ok">completed</span>
-              {% elif r.status == 'running' %}
-                <span class="badge run">running</span>
+              <a href="/ops?rescue_id={{ r.rescue_id }}"
+                 class="rescue-link {% if selected and selected.rescue_id == r.rescue_id %}selected-row{% endif %}"
+                 aria-label="View rescue {{ r.rescue_id }}">{{ r.rescue_id }}</a>
+            </td>
+            <td>{{ r.location_name or r.location_id or '—' }}</td>
+            <td>
+              {% if r.status == 'running' %}
+                <span class="badge run"><span class="run-dot"></span>Running</span>
+              {% elif r.status == 'completed' %}
+                <span class="badge ok">Done</span>
               {% elif r.status == 'error' %}
-                <span class="badge err">error</span>
+                <span class="badge err">Error</span>
+              {% elif r.status == 'timeout' %}
+                <span class="badge warn">Timeout</span>
               {% else %}
-                <span class="badge warn">{{ r.status }}</span>
+                <span class="badge idle">{{ r.status }}</span>
               {% endif %}
             </td>
-            <td class="muted">{{ r.started_at }}</td>
-            <td class="muted">{{ r.completed_at or "-" }}</td>
+            <td class="mono">{{ r.started_at or '—' }}</td>
+            <td class="mono">{{ r.completed_at or '—' }}</td>
           </tr>
-        {% endfor %}
+          {% endfor %}
         </tbody>
       </table>
+      {% else %}
+      <div class="no-data">No rescues yet. Trigger one from the <a href="/" style="color:var(--green)">console</a>.</div>
+      {% endif %}
     </div>
-  </section>
+  </div>
 
-  <section class="section">
-    <h3>Pickups (latest)</h3>
-    <div class="card">
-      <table class="table">
+  <!-- PICKUPS TABLE -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Dispatched Pickups</span>
+      <span class="section-count">{{ pickups | length }} records</span>
+    </div>
+    <div class="panel-body">
+      {% if pickups %}
+      <table class="data-table" aria-label="Dispatched pickups">
         <thead>
           <tr>
-            <th>id</th>
-            <th>rescue_id</th>
-            <th>from</th>
-            <th>to</th>
-            <th>driver</th>
-            <th>item</th>
-            <th>lbs</th>
-            <th>dispatched</th>
+            <th>#</th>
+            <th>Rescue</th>
+            <th>Supplier</th>
+            <th>Food Bank</th>
+            <th>Driver</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Dispatched</th>
           </tr>
         </thead>
         <tbody>
-        {% for p in pickups %}
+          {% for p in pickups %}
           <tr>
-            <td>{{ p.id }}</td>
-            <td><code>{{ p.rescue_id or "-" }}</code></td>
-            <td>{{ p.supplier_name or p.supplier_id }}</td>
-            <td>{{ p.foodbank_name or p.foodbank_id }}</td>
-            <td>{{ p.volunteer_name or p.volunteer_id }} <span class="muted">{{ p.volunteer_phone or "" }}</span></td>
-            <td>{{ p.item }}</td>
-            <td><b>{{ "%.1f"|format(p.quantity_lbs) }}</b></td>
-            <td class="muted">{{ p.dispatched_at }}</td>
+            <td class="mono">{{ p.id }}</td>
+            <td>
+              {% if p.rescue_id %}
+              <a href="/ops?rescue_id={{ p.rescue_id }}" class="rescue-link">{{ p.rescue_id }}</a>
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ p.supplier_name or p.supplier_id or '—' }}</td>
+            <td>{{ p.foodbank_name or p.foodbank_id or '—' }}</td>
+            <td>
+              <div>{{ p.volunteer_name or '—' }}</div>
+              <div class="muted mono">{{ p.volunteer_phone or '' }}</div>
+            </td>
+            <td>{{ p.item or '—' }}</td>
+            <td style="font-weight:600;color:var(--green)">{{ p.quantity_lbs or '—' }} lbs</td>
+            <td class="mono">{{ p.dispatched_at or '—' }}</td>
           </tr>
-        {% endfor %}
+          {% endfor %}
         </tbody>
       </table>
+      {% else %}
+      <div class="no-data">No pickups dispatched yet.</div>
+      {% endif %}
     </div>
-  </section>
+  </div>
 
-  <section class="section">
-    <h3>Inventory (latest)</h3>
-    <div class="card">
-      <table class="table">
+  <!-- INVENTORY TABLE -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Inventory</span>
+      <span class="section-count">{{ inventory | length }} items</span>
+    </div>
+    <div class="panel-body">
+      {% if inventory %}
+      <table class="data-table" aria-label="Inventory">
         <thead>
           <tr>
-            <th>location</th>
-            <th>item</th>
-            <th>qty_lbs</th>
-            <th>predicted_surplus</th>
-            <th>available_at</th>
-            <th>created_at</th>
+            <th>Location</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Predicted Surplus</th>
+            <th>Available At</th>
+            <th>Updated</th>
           </tr>
         </thead>
         <tbody>
-        {% for i in inventory %}
+          {% for i in inventory %}
           <tr>
-            <td>{{ i.location_name }}</td>
-            <td>{{ i.item }}</td>
-            <td>{{ "%.1f"|format(i.quantity_lbs) }}</td>
-            <td><b>{{ "%.1f"|format(i.predicted_surplus) }}</b></td>
-            <td class="muted">{{ i.available_at }}</td>
-            <td class="muted">{{ i.created_at }}</td>
+            <td>{{ i.location_name or i.location_id or '—' }}</td>
+            <td style="font-weight:500">{{ i.item or '—' }}</td>
+            <td style="font-weight:600;color:var(--forest)">{{ i.quantity_lbs or '—' }} lbs</td>
+            <td>
+              {% if i.predicted_surplus %}
+                <span class="badge {% if i.predicted_surplus > 0.6 %}ok{% elif i.predicted_surplus > 0.3 %}warn{% else %}idle{% endif %}">
+                  {{ "%.0f"|format(i.predicted_surplus * 100) }}%
+                </span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="mono">{{ i.available_at or '—' }}</td>
+            <td class="mono muted">{{ i.created_at or '—' }}</td>
           </tr>
-        {% endfor %}
+          {% endfor %}
         </tbody>
       </table>
+      {% else %}
+      <div class="no-data">No inventory records found.</div>
+      {% endif %}
     </div>
-  </section>
+  </div>
 
-  <section class="section">
-    <h3>Volunteers</h3>
-    <div class="cards">
-      {% for v in volunteers %}
-      <div class="card">
-        <div class="item">{{ v.name }}</div>
-        <div class="loc">{{ v.phone }}</div>
-        <div class="time">ID: <code>{{ v.id }}</code></div>
-        <div class="time">Status: <b>{{ "available" if v.available else "busy" }}</b></div>
+  <!-- VOLUNTEERS -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Volunteer Drivers</span>
+      <span class="section-count">
+        {{ volunteers | selectattr('available') | list | length }} available
+        / {{ volunteers | length }} total
+      </span>
+    </div>
+    <div class="panel-body">
+      {% if volunteers %}
+      <div class="vol-grid">
+        {% for v in volunteers %}
+        <div class="vol-card {% if not v.available %}busy{% endif %}">
+          <div class="vol-name">{{ v.name }}</div>
+          <div class="vol-phone">{{ v.phone }}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="badge {% if v.available %}avail{% else %}busy{% endif %}">
+              {% if v.available %}Available{% else %}On Route{% endif %}
+            </span>
+            <span class="vol-id">{{ v.id }}</span>
+          </div>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
+      {% else %}
+      <div class="no-data">No volunteers registered.</div>
+      {% endif %}
     </div>
-  </section>
-</main>
+  </div>
 
-<footer>FoodFlow AI · Ops dashboard</footer>
+</div><!-- .page -->
+
+<script>
+// Auto-refresh page every 15 seconds when no rescue is selected and any rescue is running
+(function() {
+  {% if not selected %}
+  const hasRunning = {% if rescues | selectattr('status', 'equalto', 'running') | list | length > 0 %}true{% else %}false{% endif %};
+  if (hasRunning) {
+    let t = 15;
+    const indicator = document.createElement('div');
+    indicator.style.cssText = 'position:fixed;bottom:20px;right:20px;background:rgba(10,54,34,.92);color:rgba(220,252,231,.8);font-family:var(--fm);font-size:11px;padding:8px 16px;border-radius:100px;border:1px solid rgba(22,163,74,.3);backdrop-filter:blur(8px);z-index:100;letter-spacing:.04em';
+    indicator.textContent = 'Refreshing in ' + t + 's';
+    document.body.appendChild(indicator);
+    const iv = setInterval(() => {
+      t--;
+      indicator.textContent = 'Refreshing in ' + t + 's';
+      if (t <= 0) { clearInterval(iv); location.reload(); }
+    }, 1000);
+  }
+  {% endif %}
+})();
+</script>
 </body>
 </html>
-
