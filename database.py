@@ -189,6 +189,23 @@ def get_rescues(limit: int = 100):
     conn.close()
     return [dict(r) for r in rows]
 
+def reset_demo_state() -> dict:
+    """Reset demo runtime state (keeps inventory/locations seed)."""
+    conn = get_db()
+    conn.execute("DELETE FROM pickups")
+    conn.execute("DELETE FROM rescues")
+    conn.execute("UPDATE volunteers SET available=1")
+    conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+def set_all_volunteers_available() -> dict:
+    conn = get_db()
+    cur = conn.execute("UPDATE volunteers SET available=1")
+    conn.commit()
+    conn.close()
+    return {"status": "ok", "updated": cur.rowcount}
+
 def log_pickup(supplier_id, foodbank_id, volunteer_id, item, quantity_lbs, rescue_id: Optional[str] = None):
     conn = get_db()
     conn.execute(

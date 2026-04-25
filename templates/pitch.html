@@ -133,6 +133,15 @@ body{font-family:var(--fb);color:var(--ink)}
   </div>
   <div class="counter" id="counter">01 / 04</div>
 </header>
+<div style="position:fixed;top:22px;right:40px;z-index:120;display:flex;gap:10px;pointer-events:all">
+  <a class="badge b-ok" href="/" style="text-decoration:none">Console</a>
+  <a class="badge b-ok" href="/ops" style="text-decoration:none">Ops</a>
+  {% if demo_token %}
+    <a class="badge b-ok" href="/api/report?token={{ demo_token }}" style="text-decoration:none">ESG PDF</a>
+  {% else %}
+    <a class="badge b-ok" href="/api/report" style="text-decoration:none">ESG PDF</a>
+  {% endif %}
+</div>
 <nav class="dots" id="dots" aria-label="Slide navigation"></nav>
 <div class="nav-arrows">
   <button class="nav-btn" id="btn-prev" onclick="go(cur-1)" disabled aria-label="Previous slide"><svg><use href="#chev-l"/></svg></button>

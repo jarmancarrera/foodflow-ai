@@ -17,7 +17,11 @@
   <div class="header-right">
     <a class="link" href="/">Rescue Console</a>
     <a class="link" href="/docs">API Docs</a>
-    <a class="link" href="/api/report">Download ESG PDF</a>
+    {% if demo_token %}
+      <a class="link" href="/api/report?token={{ demo_token }}">Download ESG PDF</a>
+    {% else %}
+      <a class="link" href="/api/report">Download ESG PDF</a>
+    {% endif %}
   </div>
 </header>
 

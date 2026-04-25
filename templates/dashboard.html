@@ -15,8 +15,14 @@
     </div>
   </div>
   <div class="header-right">
+    <a class="link" href="/pitch">Pitch</a>
+    <a class="link" href="/ops">Ops</a>
     <a class="link" href="/docs">API Docs</a>
-    <a class="link" href="/api/report">Download ESG PDF</a>
+    {% if demo_token %}
+      <a class="link" href="/api/report?token={{ demo_token }}">Download ESG PDF</a>
+    {% else %}
+      <a class="link" href="/api/report">Download ESG PDF</a>
+    {% endif %}
   </div>
 </header>
 
@@ -29,8 +35,9 @@
         inventory → food bank → driver → route → compliance → dispatch.
       </p>
       <div class="pill-row">
-        <div class="pill"><b>Demo mode:</b> always works (no timeouts)</div>
-        <div class="pill"><b>Trace:</b> saved to the database</div>
+        <div class="pill"><b>Model:</b> Claude tool_use</div>
+        <div class="pill"><b>Trace:</b> stored per rescue_id</div>
+        <div class="pill"><b>Inspect:</b> open <b>/ops</b></div>
       </div>
     </div>
     <div class="hero-right">
@@ -50,6 +57,46 @@
         <div class="stat">
           <div class="num">{{ "%.1f"|format(stats.total_co2_kg) }} kg</div>
           <div class="label">CO₂ avoided</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if not llm_ready %}
+  <div class="alert" style="margin-top:14px">
+    <b>Setup required:</b> Missing <code>ANTHROPIC_API_KEY</code>. Add it to your <code>.env</code> and restart the server.
+  </div>
+  {% endif %}
+
+  <section class="section">
+    <h3>Quick actions</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="item">Open dashboards</div>
+        <div class="loc">Explore the system and data</div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <a class="btn" href="/ops">Open Ops</a>
+          <a class="btn" href="/pitch">Open Pitch</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="item">Demo tools</div>
+        <div class="loc">Keep the demo runnable for judges</div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" onclick="foodflowAdmin('/api/admin/volunteers/reset')">Reset volunteers</button>
+          <button class="btn" onclick="foodflowAdmin('/api/admin/reset')">Reset demo state</button>
+        </div>
+        <div class="time">Requires demo token (if enabled).</div>
+      </div>
+      <div class="card">
+        <div class="item">Download ESG report</div>
+        <div class="loc">Board-ready PDF impact summary</div>
+        <div style="margin-top:12px">
+          {% if demo_token %}
+            <a class="btn" href="/api/report?token={{ demo_token }}">Download PDF</a>
+          {% else %}
+            <a class="btn" href="/api/report">Download PDF</a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -126,6 +173,15 @@
 <footer>FoodFlow AI · Demo console</footer>
 <script>
   window.DEMO_TOKEN = "{{ demo_token or '' }}";
+  window.foodflowAdmin = async (path) => {
+    const res = await fetch(path, {method:'POST', headers: window.DEMO_TOKEN ? {'x-demo-token': window.DEMO_TOKEN}:{}} );
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok){
+      alert(data.error || 'Request failed');
+      return;
+    }
+    window.location.reload();
+  };
   window.foodflowTrigger = async (locationId, btn) => {
     try {
       const res = await fetch(`/api/trigger/${locationId}`, {

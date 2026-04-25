@@ -81,6 +81,30 @@ Claude orchestrates the rescue by calling these tools in order:
 
 Every tool call output is appended to a single **rescue trace** (`rescues.result_json`).
 
+### Visual overview (high-level)
+
+```mermaid
+flowchart LR
+  UI[Rescue Console<br/>/]
+  OPS[Ops Dashboard<br/>/ops]
+  PITCH[Interactive Pitch<br/>/pitch]
+  API[FastAPI app<br/>main.py → foodflow/app/app.py]
+  AGENT[Claude agent<br/>agent.py]
+  TOOLS[Tools layer<br/>tools.py]
+  DB[(SQLite<br/>foodflow.db)]
+  PDF[ESG PDF<br/>/api/report]
+
+  UI -->|POST /api/trigger/{location_id}| API
+  PITCH -->|POST /api/trigger/{location_id}| API
+  API -->|Background task| AGENT
+  AGENT -->|tool_use calls| TOOLS
+  TOOLS --> DB
+  AGENT -->|write trace| DB
+  OPS --> DB
+  API --> PDF
+  PDF --> DB
+```
+
 ### Request flow (Trigger button)
 
 1) Browser calls `POST /api/trigger/{location_id}`
@@ -88,6 +112,35 @@ Every tool call output is appended to a single **rescue trace** (`rescues.result
 3) `agent.py` calls Claude with `TOOL_SCHEMAS`
 4) Each tool executes in Python (`tools.py`), reading/writing SQLite (`database.py`)
 5) Final result (including Claude messages) is stored and displayed in the UI
+
+### Sequence diagram (what happens when you click “Trigger AI Rescue”)
+
+```mermaid
+sequenceDiagram
+  participant User as User (Browser)
+  participant API as FastAPI
+  participant Agent as Claude Agent
+  participant Tools as Tools (Python)
+  participant DB as SQLite
+
+  User->>API: POST /api/trigger/{location_id}
+  API->>DB: INSERT rescues(rescue_id, status=running)
+  API-->>User: {status: agent_started, rescue_id}
+  API->>Agent: run_agent(trigger) (background)
+  Agent->>Agent: Claude.messages.create(tools=TOOL_SCHEMAS)
+
+  loop tool_use blocks
+    Agent->>Tools: execute(tool, input)
+    Tools->>DB: read/write queries
+    Tools-->>Agent: tool_result JSON
+    Agent->>Agent: Claude.messages.create(tool_results)
+  end
+
+  Agent->>DB: UPDATE rescues(status, result_json, completed_at)
+  User->>API: GET /api/rescues/{rescue_id} (poll)
+  API->>DB: SELECT rescues WHERE rescue_id=...
+  API-->>User: status + trace
+```
 
 ---
 
@@ -104,6 +157,68 @@ Main tables:
 
 Where to inspect:
 - UI: `http://127.0.0.1:8000/ops`
+
+### Database schema (logical view)
+
+```mermaid
+erDiagram
+  LOCATIONS ||--o{ INVENTORY : "has"
+  LOCATIONS ||--o{ PICKUPS : "supplier_id"
+  LOCATIONS ||--o{ PICKUPS : "foodbank_id"
+  VOLUNTEERS ||--o{ PICKUPS : "volunteer_id"
+  RESCUES ||--o{ PICKUPS : "rescue_id"
+
+  LOCATIONS {
+    text id PK
+    text name
+    real lat
+    real lng
+    text type
+    real capacity_lbs
+  }
+
+  INVENTORY {
+    int id PK
+    text location_id
+    text item
+    real quantity_lbs
+    text available_at
+    real predicted_surplus
+    text created_at
+  }
+
+  VOLUNTEERS {
+    text id PK
+    text name
+    text phone
+    real lat
+    real lng
+    int available
+  }
+
+  RESCUES {
+    text rescue_id PK
+    text location_id
+    text location_name
+    text status
+    text started_at
+    text completed_at
+    text result_json
+  }
+
+  PICKUPS {
+    int id PK
+    text rescue_id
+    text supplier_id
+    text foodbank_id
+    text volunteer_id
+    text item
+    real quantity_lbs
+    text status
+    text dispatched_at
+    text completed_at
+  }
+```
 
 ---
 

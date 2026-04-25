@@ -11,11 +11,12 @@ from foodflow.core.settings import get_settings
 
 # Keep using existing demo modules for now (we'll refactor them next).
 from database import init_db, get_surplus_items, get_stats, get_last_rescue, get_recent_running_rescue, cleanup_stale_running_rescues
-from database import get_rescue, get_rescues, get_pickups, get_inventory, get_volunteers
+from database import get_rescue, get_rescues, get_pickups, get_inventory, get_volunteers, reset_demo_state, set_all_volunteers_available
 from agent import run_agent
 from report import generate_esg_report
 
-load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env")
+# Force-load `.env` so the UI always reflects current keys.
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env", override=True)
 
 settings = get_settings()
 
@@ -73,6 +74,8 @@ async def trigger_rescue(location_id: str, background_tasks: BackgroundTasks, re
         provided = request.headers.get("x-demo-token") or request.query_params.get("token")
         if provided != settings.demo_token:
             return JSONResponse(status_code=401, content={"error": "unauthorized"})
+    elif not settings.anthropic_api_key:
+        return JSONResponse(status_code=400, content={"error": "Missing ANTHROPIC_API_KEY"})
 
     location_map = {
         "cornell_statler": {"name": "Cornell Statler Hall", "lat": 42.4467, "lng": -76.4851},
@@ -112,7 +115,7 @@ async def download_report(request: Request):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "anthropic_configured": bool(settings.anthropic_api_key)}
 
 
 @app.get("/api/rescues/{rescue_id}")
@@ -121,6 +124,31 @@ async def api_rescue(rescue_id: str):
     if not r:
         return JSONResponse(status_code=404, content={"error": "not_found"})
     return r
+
+
+def _require_demo_token(request: Request):
+    if not settings.demo_token:
+        return None
+    provided = request.headers.get("x-demo-token") or request.query_params.get("token")
+    if provided != settings.demo_token:
+        return JSONResponse(status_code=401, content={"error": "unauthorized"})
+    return None
+
+
+@app.post("/api/admin/reset")
+async def api_admin_reset(request: Request):
+    auth = _require_demo_token(request)
+    if auth:
+        return auth
+    return reset_demo_state()
+
+
+@app.post("/api/admin/volunteers/reset")
+async def api_admin_reset_volunteers(request: Request):
+    auth = _require_demo_token(request)
+    if auth:
+        return auth
+    return set_all_volunteers_available()
 
 
 @app.get("/ops", response_class=HTMLResponse)
@@ -140,6 +168,7 @@ async def ops_dashboard(request: Request, rescue_id: str | None = None):
         "volunteers": get_volunteers(),
         "selected": selected,
         "selected_result": selected_result,
+        "demo_token": settings.demo_token,
     })
 
 
