@@ -1,28 +1,67 @@
 # 🌿 FoodFlow AI
 
-**FoodFlow AI** is a hackathon MVP that runs an **autonomous food rescue loop**: detect surplus food, select a food bank, find a driver, estimate route/ETA, verify compliance, and dispatch a pickup — then **logs everything** to SQLite and generates an **ESG impact PDF**.
+**FoodFlow AI** es un MVP (hackathon) de un **agente autónomo de rescate de alimentos** que detecta excedentes, encuentra capacidad en un banco de alimentos, selecciona un voluntario, calcula la ruta/ETA, verifica cobertura legal bajo el **Bill Emerson Good Samaritan Food Donation Act**, y despacha un pickup (SMS “mock”) — **sin intervención humana**.
 
-Built for the **Cornell Claude Builders Club Hackathon 2026** (Theme: Social Impact).
+Todo el proceso queda con **trazabilidad completa** en SQLite (`foodflow.db`) mediante un **trace por rescate** guardado en `rescues.result_json`, y el sistema genera un **reporte ESG en PDF** con métricas e historial de cumplimiento.
+
+Construido para el **Cornell Claude Builders Club Hackathon 2026** (tema: Social Impact).
 
 ---
 
-## What you can do (UI)
+## Qué es (idea / producto)
+
+- **Qué hace**: coordina “en minutos” el rescate del excedente que hoy se pierde por falta de coordinación (llamadas, planillas, nadie disponible tarde).
+- **Cómo lo hace**: ejecuta un loop fijo de **6 herramientas** (Claude `tool_use`) con límites duros de tiempo/iteraciones para terminar rápido (por defecto **45s** y **12 iteraciones**).
+- **Qué entrega**:
+  - Un pickup registrado (tabla `pickups`)
+  - Un trace auditable (tabla `rescues`, campo `result_json`)
+  - Métricas de impacto (lbs rescatadas, “meals”, CO₂ evitado) y **PDF ESG**
+
+## Qué problema resuelve (por qué importa)
+
+En EE.UU. se desperdicia una fracción enorme de lo producido mientras hay inseguridad alimentaria. El cuello de botella práctico no es “la comida”, sino la **coordinación de último kilómetro**: cuándo hay excedente, quién puede recibirlo, quién lo retira, si hay cobertura legal, y dejar registro.
+
+FoodFlow apunta a eliminar ese cuello de botella con automatización total y trazabilidad.
+
+## Cómo hace dinero (modelo)
+
+SaaS B2B para instituciones (universidades, hoteles, hospitales):
+
+- **Pricing objetivo**: \( \$500\text{–}\$2{,}000/mes \) por institución / sitio.
+- **Valor adicional**: el **reporte ESG** automatizado (auditable) reduce costo de reporting.
+
+### “Gráfico” rápido (ARR potencial por campus, ejemplo conceptual)
+
+```mermaid
+xychart-beta
+  title "Ejemplo conceptual: ARR por campus (rangos)"
+  x-axis ["10 sitios","25 sitios","46 sitios"]
+  y-axis "ARR (USD)" 0 --> 1200000
+  bar ["$500/mes"] [60000,150000,276000]
+  bar ["$2,000/mes"] [240000,600000,1104000]
+```
+
+> Nota: esto es un gráfico conceptual de pricing. El repo implementa el MVP técnico (loop + DB + UI + PDF), no el billing.
+
+---
+
+## Qué puedes hacer (UI)
 
 - **Rescue Console**: `http://127.0.0.1:8000/`
-  - Trigger an AI rescue from any active surplus alert.
-  - See the latest rescue status + what Claude decided + tool trace.
+  - Disparar un rescate desde un surplus activo.
+  - Ver el último rescate (status + trace + mensajes del agente).
 - **Ops Dashboard**: `http://127.0.0.1:8000/ops`
-  - Inspect everything stored in the database: rescues, pickups, inventory, volunteers.
-- **Pitch deck (interactive)**: `http://127.0.0.1:8000/pitch`
-  - Slide deck UI that pulls **live metrics** from SQLite.
+  - Inspeccionar todo lo guardado: rescues, pickups, inventory, volunteers.
+- **Pitch deck (interactivo)**: `http://127.0.0.1:8000/pitch`
+  - Slides que leen métricas en vivo desde SQLite.
 - **ESG PDF**: `http://127.0.0.1:8000/api/report`
-- **API docs**: `http://127.0.0.1:8000/docs`
+- **API docs (OpenAPI)**: `http://127.0.0.1:8000/docs`
 
 ---
 
-## Quick start (2 minutes)
+## Quick start (2–3 minutos)
 
-### 1) Install
+### 1) Instalar dependencias
 
 ```bash
 python -m venv .venv
@@ -30,135 +69,119 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2) Configure Claude (Anthropic)
+### 2) Configurar credenciales y modo demo
 
-Create a `.env` file in the repo root (same folder as `main.py`):
+Crea un `.env` en la raíz (misma carpeta que `main.py`):
 
 ```env
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-Optional (recommended for demos):
+Opcional (recomendado para demos públicas):
 
 ```env
 FOODFLOW_DEMO_TOKEN=demo123
 FOODFLOW_ANTHROPIC_MODEL=claude-sonnet-4-6
+FOODFLOW_AGENT_MAX_SECONDS=45
+FOODFLOW_AGENT_MAX_ITERS=12
+FOODFLOW_MAX_COMPLETION_TOKENS=4096
 ```
 
-### 3) Run the server
+### 3) Correr el servidor
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-Open:
-- `http://127.0.0.1:8000/`
+Abre `http://127.0.0.1:8000/`.
 
 ---
 
-## Demo script (what to do in 60 seconds)
+## Demo en 60 segundos (guion)
 
-1) Open `http://127.0.0.1:8000/` (**Rescue Console**)
-2) Click **Trigger AI Rescue** on a surplus alert
-3) Watch **Status** change and the **Claude summary** appear
-4) Open `http://127.0.0.1:8000/ops` and click the new `rescue_id`
-5) Download the ESG PDF from `http://127.0.0.1:8000/api/report`
+1) Abre `http://127.0.0.1:8000/`
+2) Click en **Trigger AI Rescue**
+3) Abre `http://127.0.0.1:8000/ops` y entra al `rescue_id` nuevo
+4) Descarga el ESG PDF en `http://127.0.0.1:8000/api/report`
 
 ---
 
-## How it works (system overview)
+## Cómo funciona (visión técnica precisa)
 
-### The 6-tool agent loop (Claude tool_use)
-
-Claude orchestrates the rescue by calling these tools in order:
-
-1. **`check_inventory`** → reads predicted surplus items for a location
-2. **`check_foodbank_capacity`** → finds a food bank that can accept
-3. **`query_volunteers`** → selects nearby available volunteer drivers
-4. **`calculate_route`** → estimates distance + ETA (haversine demo)
-5. **`verify_compliance`** → Bill Emerson Act compliance check (demo)
-6. **`dispatch_pickup`** → logs pickup to DB + generates SMS text (demo)
-
-Every tool call output is appended to a single **rescue trace** (`rescues.result_json`).
-
-### Visual overview (high-level)
+### Arquitectura (alto nivel)
 
 ```mermaid
 flowchart LR
   UI[Rescue Console<br/>/]
   OPS[Ops Dashboard<br/>/ops]
-  PITCH[Interactive Pitch<br/>/pitch]
-  API[FastAPI app<br/>main.py → foodflow/app/app.py]
-  AGENT[Claude agent<br/>agent.py]
-  TOOLS[Tools layer<br/>tools.py]
+  PITCH[Pitch<br/>/pitch]
+  API[FastAPI<br/>foodflow/app/app.py]
+  AGENT[Agente Claude<br/>agent.py]
+  TOOLS[Herramientas<br/>tools.py]
   DB[(SQLite<br/>foodflow.db)]
-  PDF[ESG PDF<br/>/api/report]
+  PDF[ESG PDF<br/>report.py]
 
   UI -->|POST /api/trigger/{location_id}| API
   PITCH -->|POST /api/trigger/{location_id}| API
   API -->|Background task| AGENT
-  AGENT -->|tool_use calls| TOOLS
+  AGENT -->|tool_use| TOOLS
   TOOLS --> DB
-  AGENT -->|write trace| DB
+  AGENT -->|persist trace| DB
   OPS --> DB
-  API --> PDF
+  API -->|GET /api/report| PDF
   PDF --> DB
 ```
 
-### Request flow (Trigger button)
+### El loop autónomo de 6 herramientas (Claude `tool_use`)
 
-1) Browser calls `POST /api/trigger/{location_id}`
-2) Server creates a `rescue_id` and starts `run_agent(...)` in a background task
-3) `agent.py` calls Claude with `TOOL_SCHEMAS`
-4) Each tool executes in Python (`tools.py`), reading/writing SQLite (`database.py`)
-5) Final result (including Claude messages) is stored and displayed in the UI
+El agente está “forzado” por prompt a seguir **exactamente este orden** (`agent.py`):
 
-### Sequence diagram (what happens when you click “Trigger AI Rescue”)
+1. **`check_inventory`**: confirma excedente (lee de `inventory` vía `get_surplus_items()`)
+2. **`check_foodbank_capacity`**: valida que el banco acepte (lee de `locations`, tipo `foodbank`)
+3. **`query_volunteers`**: selecciona voluntarios cercanos y disponibles (`volunteers.available=1`)
+4. **`calculate_route`**: estima distancia y ETA (demo: **haversine** + velocidad fija)
+5. **`verify_compliance`**: verifica cobertura bajo Bill Emerson Act (demo: retorna `compliant=True`)
+6. **`dispatch_pickup`**: registra pickup en SQLite + genera texto SMS (demo: imprime a consola)
+
+Cada output de herramienta se apila en `result["steps"]` y se guarda como JSON en `rescues.result_json`.
+
+### Diagrama de secuencia (click en “Trigger AI Rescue”)
 
 ```mermaid
 sequenceDiagram
-  participant User as User (Browser)
+  participant Browser as Browser
   participant API as FastAPI
-  participant Agent as Claude Agent
+  participant Agent as Agent (Claude)
   participant Tools as Tools (Python)
   participant DB as SQLite
 
-  User->>API: POST /api/trigger/{location_id}
-  API->>DB: INSERT rescues(rescue_id, status=running)
-  API-->>User: {status: agent_started, rescue_id}
+  Browser->>API: POST /api/trigger/{location_id}
+  API-->>Browser: {status: agent_started, rescue_id}
   API->>Agent: run_agent(trigger) (background)
-  Agent->>Agent: Claude.messages.create(tools=TOOL_SCHEMAS)
 
-  loop tool_use blocks
-    Agent->>Tools: execute(tool, input)
-    Tools->>DB: read/write queries
-    Tools-->>Agent: tool_result JSON
-    Agent->>Agent: Claude.messages.create(tool_results)
+  Agent->>DB: INSERT rescues(status='running')
+  loop Hasta end_turn o timeout
+    Agent->>Agent: messages.create(tools=TOOL_SCHEMAS)
+    Agent->>Tools: tool_use(name,input)
+    Tools->>DB: read/write
+    Tools-->>Agent: tool_result(JSON)
   end
-
-  Agent->>DB: UPDATE rescues(status, result_json, completed_at)
-  User->>API: GET /api/rescues/{rescue_id} (poll)
-  API->>DB: SELECT rescues WHERE rescue_id=...
-  API-->>User: status + trace
+  Agent->>DB: UPDATE rescues(status, completed_at, result_json)
 ```
 
 ---
 
-## Database (SQLite)
+## Base de datos (SQLite) y trazabilidad
 
-Database file: `foodflow.db`
+- **Archivo**: `foodflow.db`
+- **Tablas principales**:
+  - `locations`: proveedores (`type='supplier'`) y foodbanks (`type='foodbank'`, con `capacity_lbs`)
+  - `inventory`: items con `predicted_surplus` para simular excedentes
+  - `volunteers`: roster de voluntarios con `available` (1/0)
+  - `rescues`: una corrida del agente por `rescue_id` + `status` + `result_json` (trace completo)
+  - `pickups`: despachos realizados (y vínculo a `rescue_id`)
 
-Main tables:
-- **`locations`**: suppliers + food banks
-- **`inventory`**: surplus items (seeded demo data)
-- **`volunteers`**: driver roster + availability
-- **`rescues`**: each agent run (`rescue_id`, status, timestamps, `result_json`)
-- **`pickups`**: dispatched pickups (linked to `rescue_id`)
-
-Where to inspect:
-- UI: `http://127.0.0.1:8000/ops`
-
-### Database schema (logical view)
+### Modelo lógico (ER)
 
 ```mermaid
 erDiagram
@@ -167,110 +190,107 @@ erDiagram
   LOCATIONS ||--o{ PICKUPS : "foodbank_id"
   VOLUNTEERS ||--o{ PICKUPS : "volunteer_id"
   RESCUES ||--o{ PICKUPS : "rescue_id"
-
-  LOCATIONS {
-    text id PK
-    text name
-    real lat
-    real lng
-    text type
-    real capacity_lbs
-  }
-
-  INVENTORY {
-    int id PK
-    text location_id
-    text item
-    real quantity_lbs
-    text available_at
-    real predicted_surplus
-    text created_at
-  }
-
-  VOLUNTEERS {
-    text id PK
-    text name
-    text phone
-    real lat
-    real lng
-    int available
-  }
-
-  RESCUES {
-    text rescue_id PK
-    text location_id
-    text location_name
-    text status
-    text started_at
-    text completed_at
-    text result_json
-  }
-
-  PICKUPS {
-    int id PK
-    text rescue_id
-    text supplier_id
-    text foodbank_id
-    text volunteer_id
-    text item
-    real quantity_lbs
-    text status
-    text dispatched_at
-    text completed_at
-  }
 ```
+
+### Métricas de impacto (cómo se calculan en este repo)
+
+El endpoint/UI usa `database.get_stats()` y calcula:
+
+- **lbs rescatadas**: suma de `pickups.quantity_lbs`
+- **meals**: `lbs * 0.817`
+- **CO₂ evitado (kg)**: `lbs * 1.134`
+
+> Estas constantes son “demo defaults” del MVP (sirven para mostrar impacto en vivo).
 
 ---
 
-## API endpoints (useful for integration)
+## Reporte ESG (PDF) — qué incluye
 
-- **`POST /api/trigger/{location_id}`**: start a rescue (background)
-- **`GET /api/rescues/{rescue_id}`**: fetch a rescue record (status + trace)
-- **`GET /api/stats`**: metrics used by dashboard + pitch
-- **`GET /api/surplus`**: predicted surplus alerts
-- **`GET /api/report`**: ESG PDF
-- **`GET /health`**: health check
+El PDF se genera con `reportlab` (`report.py`) y construye:
 
-### Demo token (optional)
+- Portada “brand”
+- KPIs (pickups, lbs, meals, CO₂)
+- Rescue log y dispatched pickups (tablas)
+- **Compliance log**: extraído desde `rescues.result_json` buscando pasos `verify_compliance`
 
-If you set `FOODFLOW_DEMO_TOKEN`, then protected endpoints require:
-- header: `x-demo-token: <token>`
-or
-- query param: `?token=<token>`
+Ruta: `GET /api/report`.
 
 ---
 
-## Repo layout
+## API (integración)
+
+- **`POST /api/trigger/{location_id}`**: inicia rescate en background
+- **`GET /api/rescues/{rescue_id}`**: estado y trace persistido
+- **`GET /api/stats`**: KPIs (para dashboard/pitch)
+- **`GET /api/surplus`**: excedentes simulados
+- **`GET /api/report`**: PDF ESG
+- **`GET /health`**: healthcheck + si Anthropic está configurado
+- **`POST /api/admin/reset`**: resetea estado runtime del demo (borra `rescues` y `pickups`, vuelve voluntarios a `available=1`)
+- **`POST /api/admin/volunteers/reset`**: marca todos los voluntarios como disponibles
+
+### Autorización “demo token” (opcional)
+
+Si defines `FOODFLOW_DEMO_TOKEN`, los endpoints sensibles requieren:
+
+- header `x-demo-token: <token>` **o**
+- query `?token=<token>`
+
+---
+
+## Configuración (variables de entorno)
+
+- **`ANTHROPIC_API_KEY`**: requerido para correr el agente real.
+- **`FOODFLOW_ANTHROPIC_MODEL`**: modelo (default `claude-sonnet-4-6`).
+- **`FOODFLOW_AGENT_MAX_SECONDS`**: timeout del loop (default `45`).
+- **`FOODFLOW_AGENT_MAX_ITERS`**: iteraciones máximas (default `12`).
+- **`FOODFLOW_MAX_COMPLETION_TOKENS`**: tokens por completion (default `4096` en `agent.py`).
+- **`FOODFLOW_DEMO_TOKEN`**: activa auth básica para demo.
+
+---
+
+## Layout del repo
 
 ```
-main.py                 entrypoint (exports FastAPI app)
-foodflow/app/app.py     FastAPI routes + templates wiring
-agent.py                Claude tool_use loop + trace persistence
-tools.py                tool functions + tool schemas
-database.py             SQLite schema/seed + read/write helpers
-report.py               ESG PDF generator (reportlab)
+main.py                 entrypoint (expone FastAPI app)
+foodflow/app/app.py     rutas FastAPI + templates + background tasks
+foodflow/core/settings.py  carga .env + defaults
+agent.py                loop Claude tool_use + persistencia de trace
+tools.py                6 herramientas + schemas para Claude
+database.py             SQLite schema/seed + helpers (queries/metrics)
+report.py               generador ESG PDF (reportlab)
 templates/              Jinja UI (/, /ops, /pitch)
 static/                 CSS
 ```
 
 ---
 
-## Troubleshooting
+## Limitaciones del MVP (importante si lo presentas como “autónomo”)
 
-### “Unauthorized” when clicking Trigger
-- You likely enabled `FOODFLOW_DEMO_TOKEN`. Make sure the UI is served by the same server instance (it injects the token automatically).
-
-### Rescue gets stuck in “running”
-- The server marks stale rescues as `timeout` automatically.
-- If it happens repeatedly, your `ANTHROPIC_API_KEY` may be missing/invalid or you hit a rate limit.
-
-### No volunteer drivers available
-- If all volunteers are marked busy in SQLite, the rescue can block at `query_volunteers`.
-  - Check `http://127.0.0.1:8000/ops` → Volunteers.
+- **SMS**: `dispatch_pickup` no integra Twilio; genera el texto y lo imprime (mock).
+- **Rutas/ETA**: `calculate_route` usa haversine + velocidad fija (no Google Maps).
+- **Compliance**: `verify_compliance` es demo y retorna `compliant=True` (el PDF registra el check, no auditoría real).
+- **Inventario**: `inventory.predicted_surplus` está seed-eado (no POS/IoT).
 
 ---
 
-## Built at hackathon
+## Troubleshooting
+
+### “Missing ANTHROPIC_API_KEY”
+- Falta `ANTHROPIC_API_KEY` en `.env` (o en el entorno).
+
+### “Unauthorized” al disparar el agente
+- `FOODFLOW_DEMO_TOKEN` está activo y no estás enviando `x-demo-token` o `?token=...`.
+
+### Rescates en `running` para siempre
+- Hay un cleanup automático que marca rescates viejos como `timeout` (ver `cleanup_stale_running_rescues()`).
+- Si ocurre seguido: key inválida, rate-limit o falla de red hacia el LLM.
+
+### No hay voluntarios
+- Si todos quedaron `available=0`, resetea desde `/api/admin/volunteers/reset` (requiere token si está activo) o desde `/ops`.
+
+---
+
+## Hecho en hackathon
 
 FoodFlow AI · Cornell Claude Builders Club Hackathon · April 25, 2026  
 Powered by [Anthropic Claude](https://anthropic.com) · FastAPI · SQLite · reportlab
