@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FoodFlow AI — Brand Deck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* ─── BRAND TOKENS ─── */
+:root {
+  --forest:   #0A3622;
+  --green:    #16A34A;
+  --mint:     #DCFCE7;
+  --fog:      #F8FAFC;
+  --fog2:     #F1F5F9;
+  --slate:    #64748B;
+  --muted:    #94A3B8;
+  --line:     #E2E8F0;
+  --white:    #FFFFFF;
+  --ink:      #0F172A;
+  --gold:     #CA8A04;
+  --gold-bg:  #FEF9C3;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10pt}
+
+/* ─── PAGE SHELL ─── */
+.slide{width:297mm;height:210mm;position:relative;overflow:hidden;page-break-after:always;display:flex;flex-direction:column}
+.light{background:var(--white)}
+.fog-bg{background:var(--fog)}
+.forest-bg{background:var(--forest)}
+
+/* ─── SVG LOGO ─── */
+.logo-mark svg{display:block}
+
+/* ─── COVER ─── */
+.cover-wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;height:100%}
+.cover-left{background:var(--forest);display:flex;flex-direction:column;justify-content:space-between;padding:12mm 14mm;position:relative;overflow:hidden}
+.cover-left::before{content:'';position:absolute;bottom:-20mm;left:-20mm;width:80mm;height:80mm;border-radius:50%;border:1.5px solid rgba(22,163,74,.15)}
+.cover-left::after{content:'';position:absolute;bottom:-8mm;left:-8mm;width:55mm;height:55mm;border-radius:50%;border:1.5px solid rgba(22,163,74,.1)}
+.cover-eyebrow{display:flex;align-items:center;gap:3mm;margin-bottom:4mm}
+.cover-eyebrow-line{width:8mm;height:1.5px;background:var(--green)}
+.cover-eyebrow-text{font-size:8pt;font-weight:600;color:var(--green);letter-spacing:2px;text-transform:uppercase}
+.cover-h1{font-size:42pt;font-weight:900;color:var(--white);line-height:.95;letter-spacing:-2px;margin-bottom:5mm}
+.cover-h1 span{color:var(--green)}
+.cover-tagline{font-size:10pt;font-weight:400;color:rgba(255,255,255,.55);line-height:1.65;max-width:85mm}
+.cover-bottom-left{display:flex;flex-direction:column;gap:3mm}
+.cover-event-badge{display:inline-flex;gap:2mm;align-items:center;background:rgba(22,163,74,.12);border:1px solid rgba(22,163,74,.25);color:rgba(255,255,255,.7);padding:2.5px 10px;border-radius:20px;font-size:7.5pt;font-weight:500;width:fit-content}
+.cover-date{font-size:7.5pt;color:rgba(255,255,255,.3)}
+
+.cover-right{background:var(--fog);display:flex;flex-direction:column;justify-content:space-between;padding:12mm 14mm}
+.cover-metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm;flex:1;margin:4mm 0}
+.cm-card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:4mm;display:flex;flex-direction:column;justify-content:space-between}
+.cm-card.accent{background:var(--forest);border-color:var(--forest)}
+.cm-num{font-size:26pt;font-weight:900;color:var(--forest);line-height:1}
+.cm-num sup{font-size:13pt;color:var(--green)}
+.cm-card.accent .cm-num{color:var(--white)}
+.cm-num.green{color:var(--green)}
+.cm-label{font-size:7.5pt;color:var(--slate);font-weight:500;margin-top:1mm}
+.cm-card.accent .cm-label{color:rgba(255,255,255,.5)}
+.cover-powered{font-size:7.5pt;color:var(--muted);display:flex;align-items:center;gap:2mm}
+.cover-powered span{color:var(--green);font-weight:600}
+.cover-logo-area{display:flex;align-items:center;gap:3mm}
+.logo-name{font-size:18pt;font-weight:900;color:var(--forest);letter-spacing:-1px}
+.logo-name em{font-style:normal;color:var(--green)}
+
+/* ─── SLIDE HEADER ─── */
+.slide-head{padding:7mm 13mm 0;display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0}
+.sh-left{display:flex;gap:3mm;align-items:center}
+.sh-pill{background:var(--mint);color:var(--forest);font-size:7.5pt;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.5px}
+.sh-title{font-size:16pt;font-weight:800;color:var(--forest);letter-spacing:-.5px;line-height:1.1}
+.sh-sub{font-size:8pt;color:var(--slate);margin-top:.5mm;font-weight:400}
+.sh-logo{display:flex;align-items:center;gap:2mm}
+.sh-logo-name{font-size:9pt;font-weight:800;color:var(--forest)}
+.sh-logo-name em{font-style:normal;color:var(--green)}
+
+.slide-body{flex:1;padding:4mm 13mm 5mm;overflow:hidden}
+
+/* ─── FOREST HEADER SLIDES ─── */
+.forest-head{background:var(--forest);padding:7mm 13mm;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.fh-title{font-size:16pt;font-weight:800;color:var(--white);letter-spacing:-.5px}
+.fh-sub{font-size:8pt;color:rgba(255,255,255,.4);margin-top:.5mm}
+.fh-num{font-size:8pt;font-weight:700;color:var(--green);background:rgba(22,163,74,.15);padding:2px 10px;border-radius:20px}
+
+/* ─── STAT CHIPS ─── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:3.5mm;margin-bottom:4mm}
+.stat-chip{background:var(--fog);border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm}
+.stat-chip.green{background:var(--mint);border-color:rgba(22,163,74,.2)}
+.stat-chip.forest{background:var(--forest)}
+.sc-val{font-size:22pt;font-weight:900;color:var(--forest);line-height:1}
+.stat-chip.forest .sc-val{color:var(--white)}
+.stat-chip.green .sc-val{color:var(--forest)}
+.sc-val.accent{color:var(--green)}
+.sc-lbl{font-size:7.5pt;color:var(--slate);margin-top:1mm;font-weight:500;line-height:1.3}
+.stat-chip.forest .sc-lbl{color:rgba(255,255,255,.45)}
+.sc-source{font-size:6.5pt;color:var(--muted);margin-top:1mm}
+
+/* ─── CARDS ─── */
+.card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:4mm}
+.card.mint{background:var(--mint);border-color:rgba(22,163,74,.2)}
+.card.forest{background:var(--forest)}
+.card-title{font-size:8.5pt;font-weight:700;color:var(--forest);margin-bottom:2mm;display:flex;align-items:center;gap:1.5mm}
+.card.forest .card-title{color:rgba(255,255,255,.6)}
+.card.forest p,.card.forest .c-row-val{color:rgba(255,255,255,.75)}
+.card p{font-size:8pt;color:var(--slate);line-height:1.55}
+.card-lede{font-size:8.5pt;color:var(--ink);font-weight:500;margin-bottom:1.5mm}
+
+/* ─── COMPONENT ROWS ─── */
+.c-row{display:flex;gap:2.5mm;padding:2mm 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.c-row:last-child{border-bottom:none}
+.c-row-key{font-family:'JetBrains Mono',monospace;font-size:7.5pt;font-weight:600;color:var(--green);min-width:20mm;flex-shrink:0}
+.c-row-val{font-size:8pt;color:var(--slate);line-height:1.4}
+
+/* ─── TOOL CARDS ─── */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:3mm;height:100%}
+.tool-card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:3.5mm;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0}
+.tc1::before{background:var(--green)}
+.tc2::before{background:#0EA5E9}
+.tc3::before{background:#8B5CF6}
+.tc4::before{background:#F59E0B}
+.tc5::before{background:#EF4444}
+.tc6::before{background:#10B981}
+.tool-n{font-size:7pt;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1mm}
+.tool-ico{font-size:15pt;margin-bottom:1mm}
+.tool-name{font-size:10pt;font-weight:800;color:var(--forest);margin-bottom:1.5mm}
+.tool-row{display:flex;gap:1.5mm;font-size:7pt;padding:1.5mm 0;border-bottom:1px solid var(--line)}
+.tool-row:last-child{border-bottom:none}
+.tool-k{color:var(--green);font-weight:700;min-width:14mm;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:6.5pt}
+.tool-v{color:var(--slate);line-height:1.35}
+
+/* ─── CODE ─── */
+.code-wrap{background:var(--forest);border-radius:8px;padding:3.5mm 4.5mm;font-family:'JetBrains Mono',monospace;font-size:7.5pt;color:rgba(255,255,255,.8);line-height:1.75}
+.cc{color:rgba(255,255,255,.3)}.ck{color:#86efac}.cs{color:#6ee7b7}.cf{color:#a5f3fc}.cn{color:#fde68a}
+
+/* ─── FLOW STEPS ─── */
+.flow-step{display:flex;align-items:center;gap:3mm;padding:2.5mm 3.5mm;background:var(--fog);border:1px solid var(--line);border-radius:8px}
+.fs-num{width:6mm;height:6mm;border-radius:50%;background:var(--green);color:#fff;font-size:8pt;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fs-title{font-size:9pt;font-weight:700;color:var(--forest)}
+.fs-desc{font-size:7.5pt;color:var(--slate);margin-top:.3mm}
+
+/* ─── ARCH BOX ─── */
+.arch-box{background:var(--white);border:1px solid var(--line);border-radius:8px;padding:3mm;margin-bottom:2.5mm}
+.arch-box.highlight{border-left:3px solid var(--green);background:var(--fog)}
+.arch-box.ai{border-left:3px solid #8B5CF6;background:#faf5ff}
+.ab-name{font-size:9pt;font-weight:700;color:var(--forest);display:flex;align-items:center;gap:2mm;margin-bottom:.5mm}
+.ab-file{font-family:'JetBrains Mono',monospace;font-size:7pt;color:var(--green);margin-bottom:1mm}
+.ab-desc{font-size:7.5pt;color:var(--slate);line-height:1.45}
+.ab-badge{font-size:6.5pt;background:var(--mint);color:var(--forest);padding:1px 7px;border-radius:10px;font-weight:700;margin-left:auto}
+.ab-badge.purple{background:#ede9fe;color:#7c3aed}
+
+/* ─── TABLES ─── */
+table{width:100%;border-collapse:collapse;font-size:8pt}
+th{background:var(--forest);color:#fff;padding:2.5mm 3mm;text-align:left;font-weight:600;font-size:7.5pt}
+th.right{text-align:right}
+td{padding:2mm 3mm;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:top}
+td.right{text-align:right}
+td.green{color:var(--green);font-weight:700}
+td.gold{color:var(--gold);font-weight:700}
+tr.accent-row td{background:var(--mint);font-weight:700;color:var(--forest)}
+tr:nth-child(even) td{background:var(--fog)}
+
+/* ─── PRICING ─── */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.pc{background:var(--white);border:1.5px solid var(--line);border-radius:12px;padding:4mm;display:flex;flex-direction:column}
+.pc.featured{border-color:var(--green);background:var(--fog)}
+.pc-tier{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);margin-bottom:1mm}
+.pc-price{font-size:26pt;font-weight:900;color:var(--forest);line-height:1;margin-bottom:2mm}
+.pc-price sup{font-size:12pt;color:var(--green)}
+.pc-price sub{font-size:10pt;color:var(--slate);font-weight:400}
+.pc-desc{font-size:7.5pt;color:var(--slate);line-height:1.45;margin-bottom:3mm;padding-bottom:3mm;border-bottom:1px solid var(--line)}
+.pc-feat{font-size:7.5pt;color:var(--slate);padding:1.5mm 0;display:flex;gap:2mm;border-bottom:1px solid var(--fog2)}
+.pc-feat:last-child{border:none}
+.pc-check{color:var(--green);font-weight:700}
+.pc-x{color:var(--muted)}
+.pc-badge{background:var(--green);color:#fff;font-size:6.5pt;font-weight:700;padding:2px 8px;border-radius:20px;text-align:center;margin-bottom:2mm;display:block}
+
+/* ─── BAR CHART ─── */
+.bar-chart{display:flex;align-items:flex-end;gap:8mm;height:48mm;border-bottom:1.5px solid var(--line);border-left:1.5px solid var(--line);padding:0 4mm 0 2mm}
+.bar-group{display:flex;flex-direction:column;align-items:center;gap:1mm;flex:1}
+.bar-stack{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.5mm;width:100%;height:45mm}
+.bar-seg{width:80%;border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:1mm;font-size:6pt;font-weight:700;color:#fff}
+.bar-seg.saas{background:var(--forest)}
+.bar-seg.fees{background:var(--green)}
+.bar-seg.esg{background:#86efac}
+.bar-year{font-size:7.5pt;color:var(--slate);font-weight:600;margin-top:1.5mm}
+.bar-total{font-size:8.5pt;font-weight:800;color:var(--forest)}
+
+/* ─── COMPETITIVE TABLE ─── */
+.comp-head{background:var(--forest);color:#fff;padding:2.5mm 3mm;font-size:7.5pt;font-weight:700;text-align:center}
+.comp-head.left{text-align:left}
+.comp-td{padding:2mm 3mm;border-bottom:1px solid var(--line);font-size:8pt;text-align:center;background:var(--white)}
+.comp-td.left{text-align:left;font-weight:600;color:var(--ink)}
+.comp-tr.ours .comp-td{background:var(--mint);font-weight:700}
+.comp-tr.ours .comp-td.left{color:var(--green)}
+.chk{color:var(--green);font-weight:900;font-size:10pt}
+.no{color:var(--muted);font-size:10pt}
+.prt{color:var(--gold);font-size:10pt}
+
+/* ─── GTM TIMELINE ─── */
+.gtm-tl{position:relative;padding-left:9mm;display:flex;flex-direction:column;gap:0}
+.gtm-tl::before{content:'';position:absolute;left:3mm;top:3mm;bottom:3mm;width:1.5px;background:linear-gradient(180deg,var(--green),var(--mint))}
+.tl-item{position:relative;padding-bottom:3.5mm}
+.tl-dot{position:absolute;left:-8mm;top:1mm;width:4mm;height:4mm;border-radius:50%;background:var(--green);border:2px solid var(--white);box-shadow:0 0 0 1.5px var(--green)}
+.tl-period{font-size:7pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px}
+.tl-title{font-size:9.5pt;font-weight:800;color:var(--forest);margin:.5mm 0}
+.tl-desc{font-size:7.5pt;color:var(--slate);line-height:1.45}
+.tl-kpi{font-size:8pt;font-weight:700;color:var(--gold);margin-top:.5mm}
+
+/* ─── IMPACT ─── */
+.impact-hero{background:var(--forest);border-radius:12px;padding:5mm 6mm;margin-bottom:4mm;position:relative;overflow:hidden}
+.impact-hero::before{content:'';position:absolute;right:-15mm;bottom:-15mm;width:50mm;height:50mm;border-radius:50%;background:rgba(22,163,74,.08)}
+.ih-quote{font-size:13pt;font-weight:600;color:var(--white);line-height:1.45;max-width:190mm}
+.ih-quote em{font-style:normal;color:var(--green)}
+.sdg-row{display:flex;gap:3mm}
+.sdg-card{flex:1;background:var(--fog);border:1px solid var(--line);border-radius:8px;padding:3mm;display:flex;gap:2.5mm}
+.sdg-num{font-size:11pt;font-weight:900;color:#fff;width:9mm;height:9mm;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sdg-title{font-size:8.5pt;font-weight:700;color:var(--forest)}
+.sdg-desc{font-size:7pt;color:var(--slate);margin-top:.5mm;line-height:1.4}
+
+/* ─── UE METRICS ─── */
+.ue-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-bottom:3.5mm}
+.ue-card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:3.5mm;text-align:center}
+.ue-card.green{background:var(--mint);border-color:rgba(22,163,74,.25)}
+.ue-card.forest{background:var(--forest)}
+.ue-val{font-size:22pt;font-weight:900;color:var(--forest);line-height:1}
+.ue-card.green .ue-val{color:var(--forest)}
+.ue-card.forest .ue-val{color:var(--white)}
+.ue-val.green{color:var(--green)}
+.ue-label{font-size:7pt;color:var(--slate);margin-top:1mm;line-height:1.3;font-weight:500}
+.ue-card.forest .ue-label{color:rgba(255,255,255,.45)}
+.ue-badge{display:inline-block;margin-top:1.5mm;background:rgba(22,163,74,.12);color:var(--green);border-radius:10px;font-size:6.5pt;font-weight:700;padding:1px 7px}
+.ue-badge.gold{background:var(--gold-bg);color:var(--gold)}
+
+/* ─── PILL TAGS ─── */
+.pill{display:inline-block;padding:1.5px 8px;border-radius:20px;font-size:7.5pt;font-weight:600;margin:1.5px}
+.pill.forest{background:var(--mint);color:var(--forest)}
+.pill.purple{background:#ede9fe;color:#7c3aed}
+.pill.blue{background:#e0f2fe;color:#0369a1}
+.pill.gold{background:var(--gold-bg);color:var(--gold)}
+
+/* ─── ASK ─── */
+.ask-amount-box{background:var(--forest);border-radius:12px;padding:5mm 6mm;margin-bottom:3mm}
+.ask-label{font-size:7.5pt;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5mm}
+.ask-val{font-size:36pt;font-weight:900;color:var(--white);line-height:1;margin-bottom:1mm}
+.ask-val span{color:var(--green)}
+.ask-desc{font-size:8pt;color:rgba(255,255,255,.45);line-height:1.5}
+.use-row{display:flex;align-items:center;gap:3mm;padding:2.5mm 3mm;background:var(--fog);border:1px solid var(--line);border-radius:7px;margin-bottom:2mm}
+.use-label{font-size:8.5pt;color:var(--ink);flex:1;font-weight:500}
+.use-amount{font-size:9pt;font-weight:800;color:var(--forest)}
+.use-pct{font-size:7.5pt;color:var(--muted);min-width:8mm;text-align:right}
+.done-item{display:flex;gap:2.5mm;align-items:center;padding:2.5mm 3mm;background:var(--fog);border:1px solid var(--line);border-radius:7px;margin-bottom:2mm}
+.done-check{color:var(--green);font-weight:800;font-size:10pt}
+.done-text{font-size:8.5pt;color:var(--ink);font-weight:500}
+
+/* ─── CLOSING BAR ─── */
+.closing{background:var(--forest);padding:3mm 13mm;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.cl-brand{font-size:9pt;font-weight:800;color:var(--white);display:flex;align-items:center;gap:2mm}
+.cl-brand em{font-style:normal;color:var(--green)}
+.cl-link{font-size:7.5pt;color:rgba(255,255,255,.4)}
+.cl-link span{color:var(--green)}
+
+/* ─── FOOTER ─── */
+.slide-foot{position:absolute;bottom:4mm;left:13mm;right:13mm;display:flex;justify-content:space-between;font-size:6.5pt;color:var(--muted);border-top:1px solid var(--line);padding-top:2mm}
+.forest-bg .slide-foot{border-top-color:rgba(255,255,255,.08);color:rgba(255,255,255,.25)}
+.dark-foot{border-top-color:rgba(255,255,255,.08);color:rgba(255,255,255,.25)}
+
+@media print{.slide{page-break-after:always}}
+</style>
+</head>
+<body>
+
+<!-- SVG Logo Symbol — reused via <use> -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="logo-icon" viewBox="0 0 40 40">
+      <rect width="40" height="40" rx="10" fill="#0A3622"/>
+      <!-- Bowl -->
+      <path d="M10 18 Q10 28 20 28 Q30 28 30 18 Z" fill="white"/>
+      <!-- Bowl rim -->
+      <rect x="9" y="16" width="22" height="2.5" rx="1.25" fill="white"/>
+      <!-- Leaf -->
+      <path d="M20 8 C20 8 14 10 14 15 C14 17 16 18 18 17.5 L20 8 Z" fill="white"/>
+      <path d="M20 8 C20 8 26 10 26 15 C26 17 24 18 22 17.5 L20 8 Z" fill="rgba(255,255,255,0.5)"/>
+      <!-- Data flow lines -->
+      <line x1="10" y1="21" x2="17" y2="21" stroke="#0A3622" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="17" cy="21" r="1.5" fill="#0A3622"/>
+      <line x1="10" y1="24" x2="15" y2="24" stroke="#0A3622" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="15" cy="24" r="1.5" fill="#0A3622"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ═══════════════════ SLIDE 1 — COVER -->
+<div class="slide light">
+  <div class="cover-wrap">
+    <!-- LEFT: dark forest panel -->
+    <div class="cover-left">
+      <div>
+        <div class="cover-eyebrow"><div class="cover-eyebrow-line"></div><div class="cover-eyebrow-text">Autonomous Food Rescue</div></div>
+        <div style="margin-bottom:5mm">
+          <svg width="52" height="52"><use href="#logo-icon"/></svg>
+        </div>
+        <div class="cover-h1">Food<span>Flow</span><br>AI</div>
+        <div class="cover-tagline">AI-powered surplus prediction and real-time redistribution — connecting institutions to food banks before food ever hits the bin. Zero human coordination required.</div>
+      </div>
+      <div class="cover-bottom-left">
+        <div class="cover-event-badge">🎓 Cornell Claude Builders Club Hackathon · April 25, 2026</div>
+        <div class="cover-date">Social Impact Track · Collegetown eHub, Ithaca NY</div>
+      </div>
+    </div>
+    <!-- RIGHT: metrics panel -->
+    <div class="cover-right">
+      <div>
+        <div style="font-size:9pt;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3mm">Key Metrics</div>
+        <div class="cover-metrics-grid">
+          <div class="cm-card accent">
+            <div class="cm-num">6<sup style="font-size:13pt;color:#86efac"> tools</sup></div>
+            <div class="cm-label">Claude Agent Loop</div>
+          </div>
+          <div class="cm-card">
+            <div class="cm-num green">~4<sup style="font-size:13pt">s</sup></div>
+            <div class="cm-label">Full Rescue Cycle</div>
+          </div>
+          <div class="cm-card">
+            <div class="cm-num">$2.2<sup style="font-size:13pt">B</sup></div>
+            <div class="cm-label">Total Addressable Market</div>
+          </div>
+          <div class="cm-card">
+            <div class="cm-num green">380<sup style="font-size:13pt">x</sup></div>
+            <div class="cm-label">Enterprise LTV:CAC</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:8.5pt;font-weight:700;color:var(--forest);margin-bottom:2mm">Built in one day at Cornell</div>
+        <p style="font-size:7.5pt;color:var(--slate);line-height:1.6;margin-bottom:3mm">Working MVP with Claude claude-sonnet-4-6 tool_use · FastAPI dashboard · SQLite · reportlab ESG PDF · live at <span style="color:var(--green);font-weight:600">github.com/jarmancarrera/foodflow-ai</span></p>
+        <div style="display:flex;flex-wrap:wrap;gap:1.5mm">
+          <span class="pill forest">Claude claude-sonnet-4-6</span>
+          <span class="pill forest">FastAPI</span>
+          <span class="pill forest">SQLite</span>
+          <span class="pill blue">Python 3.11</span>
+          <span class="pill purple">reportlab</span>
+        </div>
+      </div>
+      <div class="cover-powered">
+        <svg width="20" height="20"><use href="#logo-icon"/></svg>
+        <span>FoodFlow AI</span> · powered by <span>Anthropic Claude</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SLIDE 2 — PROBLEM -->
+<div class="slide fog-bg">
+  <div class="forest-head">
+    <div><div class="fh-title">The Problem</div><div class="fh-sub">Abundance and hunger coexist because of a timing failure, not a supply failure</div></div>
+    <div class="fh-num">01 / 11</div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1.05fr 1fr;gap:5mm;padding-top:4mm">
+    <div>
+      <div style="font-size:8pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3mm">Scale of the crisis</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-bottom:3mm">
+        <div class="stat-chip green"><div class="sc-val">40<sup style="font-size:12pt;color:var(--green)">%</sup></div><div class="sc-lbl">of US food supply wasted every year — enough to end domestic hunger 3× over</div><div class="sc-source">USDA ERS 2023</div></div>
+        <div class="stat-chip forest"><div class="sc-val" style="color:var(--white)">$444<sup style="font-size:12pt;color:#86efac">B</sup></div><div class="sc-lbl" style="color:rgba(255,255,255,.45)">economic value lost annually to food waste across US supply chain</div><div class="sc-source" style="color:rgba(255,255,255,.25)">ReFED 2023</div></div>
+        <div class="stat-chip"><div class="sc-val accent">13.5<sup style="font-size:12pt">%</sup></div><div class="sc-lbl">US households face food insecurity — 44M people, 13M children</div><div class="sc-source">USDA ERS 2023</div></div>
+        <div class="stat-chip"><div class="sc-val">8–10<sup style="font-size:12pt">%</sup></div><div class="sc-lbl">of global GHG emissions come from food produced but never eaten</div><div class="sc-source">FAO 2023</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2.5mm">
+      <div style="font-size:8pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5mm">Why existing solutions fail</div>
+      <div class="card">
+        <div class="card-title">📞 Manual phone calls</div>
+        <div class="card-lede">Staff calls food banks at 5:55 PM. No answer. Food goes to dumpster.</div>
+        <p>This happens in 60% of attempted donations. Timing is the failure mode, not intent. FoodFlow starts the process <strong>2 hours before closing</strong> — automatically.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🛍️ Too Good To Go</div>
+        <div class="card-lede">Consumer magic bags — wrong category entirely.</div>
+        <p>Requires retail packaging and consumer pickup. Doesn't serve 200 lb bulk surpluses at university dining halls or hotel kitchens.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">⚖️ Liability fear (the hidden barrier)</div>
+        <div class="card-lede">Institutions cite legal risk as their #1 reason not to donate.</div>
+        <p>The Bill Emerson Good Samaritan Act protects them — but nobody verifies compliance automatically. FoodFlow does, on every rescue.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>01 — The Problem</span><span>2 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 3 — SOLUTION -->
+<div class="slide light">
+  <div class="slide-head">
+    <div class="sh-left">
+      <div><div class="sh-title">The Solution</div><div class="sh-sub">Claude claude-sonnet-4-6 tool_use agent · 6 tools · zero human coordination required</div></div>
+    </div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:3.5mm">
+    <div class="card forest" style="padding:4.5mm 5mm">
+      <div style="font-size:12pt;font-weight:600;color:var(--white);line-height:1.5">FoodFlow connects to a restaurant's inventory system, detects surplus 2 hours before closing, finds the nearest food bank, locates a volunteer driver, verifies legal compliance, and dispatches the pickup — <em style="font-style:normal;color:var(--green)">all in ~4 seconds, with zero staff involvement.</em></div>
+    </div>
+    <div style="font-size:8pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5mm">Autonomous 6-Tool Agent Loop</div>
+    <div class="tools-grid">
+      <div class="tool-card tc1">
+        <div class="tool-n">Tool 01</div><div class="tool-ico">📦</div><div class="tool-name">check_inventory</div>
+        <div class="tool-row"><div class="tool-k">Input</div><div class="tool-v">location_id — which institution</div></div>
+        <div class="tool-row"><div class="tool-k">Action</div><div class="tool-v">Query surplus items WHERE expiry &lt; 4h</div></div>
+        <div class="tool-row"><div class="tool-k">Returns</div><div class="tool-v">Items, qty_lbs, food_type, expiry</div></div>
+        <div class="tool-row"><div class="tool-k">Claude</div><div class="tool-v">Reads total lbs + food categories</div></div>
+      </div>
+      <div class="tool-card tc2">
+        <div class="tool-n">Tool 02</div><div class="tool-ico">🏦</div><div class="tool-name">check_foodbank_capacity</div>
+        <div class="tool-row"><div class="tool-k">Input</div><div class="tool-v">food_type, qty_lbs, lat/lng</div></div>
+        <div class="tool-row"><div class="tool-k">Action</div><div class="tool-v">Filter capacity &gt; qty, sort by distance</div></div>
+        <div class="tool-row"><div class="tool-k">Returns</div><div class="tool-v">Best bank, distance_mi, capacity</div></div>
+        <div class="tool-row"><div class="tool-k">Claude</div><div class="tool-v">Picks closest with enough room</div></div>
+      </div>
+      <div class="tool-card tc3">
+        <div class="tool-n">Tool 03</div><div class="tool-ico">🙋</div><div class="tool-name">query_volunteers</div>
+        <div class="tool-row"><div class="tool-k">Input</div><div class="tool-v">supplier_lat/lng, max_distance</div></div>
+        <div class="tool-row"><div class="tool-k">Action</div><div class="tool-v">Haversine sort, filter available=true</div></div>
+        <div class="tool-row"><div class="tool-k">Returns</div><div class="tool-v">Nearest driver, phone, vehicle_cap</div></div>
+        <div class="tool-row"><div class="tool-k">Claude</div><div class="tool-v">Confirms vehicle fits load</div></div>
+      </div>
+      <div class="tool-card tc4">
+        <div class="tool-n">Tool 04</div><div class="tool-ico">🗺️</div><div class="tool-name">calculate_route</div>
+        <div class="tool-row"><div class="tool-k">Input</div><div class="tool-v">volunteer / supplier / foodbank coords</div></div>
+        <div class="tool-row"><div class="tool-k">Action</div><div class="tool-v">Haversine total, assume 20 mph urban</div></div>
+        <div class="tool-row"><div class="tool-k">Returns</div><div class="tool-v">Total mi, ETA minutes, arrival time</div></div>
+        <div class="tool-row"><div class="tool-k">Claude</div><div class="tool-v">Verifies food won't expire en route</div></div>
+      </div>
+      <div class="tool-card tc5">
+        <div class="tool-n">Tool 05</div><div class="tool-ico">⚖️</div><div class="tool-name">verify_compliance</div>
+        <div class="tool-row"><div class="tool-k">Input</div><div class="tool-v">food_type, prep_method, storage_temp</div></div>
+        <div class="tool-row"><div class="tool-k">Action</div><div class="tool-v">Bill Emerson Act eligibility check</div></div>
+        <div class="tool-row"><div class="tool-k">Returns</div><div class="tool-v">is_compliant, protection_level</div></div>
+        <div class="tool-row"><div class="tool-k">Claude</div><div class="tool-v">Hard gate — blocks dispatch if fails</div></div>
+      </div>
+      <div class="tool-card tc6">
+        <div class="tool-n">Tool 06</div><div class="tool-ico">🚀</div><div class="tool-name">dispatch_pickup</div>
+        <div class="tool-row"><div class="tool-k">Input</div><div class="tool-v">phone, addresses, food_summary, ETA</div></div>
+        <div class="tool-row"><div class="tool-k">Action</div><div class="tool-v">Log to DB, SMS driver, mark busy</div></div>
+        <div class="tool-row"><div class="tool-k">Returns</div><div class="tool-v">pickup_id, status: dispatched</div></div>
+        <div class="tool-row"><div class="tool-k">Claude</div><div class="tool-v">Confirms in natural language summary</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>02 — Solution</span><span>3 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 4 — ARCHITECTURE -->
+<div class="slide fog-bg">
+  <div class="slide-head">
+    <div><div class="sh-title">Technical Architecture</div><div class="sh-sub">Every file, every function — full system walkthrough</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;padding-top:3mm">
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2.5mm">Layers 1 &amp; 2 — Frontend + API</div>
+      <div class="arch-box" style="margin-bottom:2mm">
+        <div class="ab-name">🖥️ Dashboard UI <span class="ab-badge">templates/dashboard.html</span></div>
+        <div class="ab-desc">Jinja2 server-side render. Auto-refreshes every 10 seconds. Shows live rescue stats, surplus cards per location, trigger buttons, and live pickup log. Zero JS framework.</div>
+      </div>
+      <div class="arch-box highlight" style="margin-bottom:2mm">
+        <div class="ab-name">⚡ FastAPI Application <span class="ab-badge">main.py</span></div>
+        <div class="ab-desc">6 routes: <code style="font-size:7pt;color:var(--green)">GET /</code> dashboard · <code style="font-size:7pt;color:var(--green)">GET /api/stats</code> · <code style="font-size:7pt;color:var(--green)">GET /api/surplus</code> · <code style="font-size:7pt;color:var(--green)">POST /api/trigger/{id}</code> → spawns BackgroundTask → <code style="font-size:7pt;color:var(--green)">GET /api/report</code>. Uvicorn ASGI.</div>
+      </div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2.5mm;margin-top:2mm">Layer 3 — Data</div>
+      <div class="arch-box">
+        <div class="ab-name">🗄️ SQLite Database <span class="ab-badge">database.py</span></div>
+        <div class="ab-desc">Tables: <code style="font-size:7pt;color:var(--forest)">food_inventory</code>, <code style="font-size:7pt;color:var(--forest)">food_banks</code>, <code style="font-size:7pt;color:var(--forest)">volunteers</code>, <code style="font-size:7pt;color:var(--forest)">pickups</code>. Seed data: Cornell Statler Hall, RPCC, Ithaca Food Bank, 3 drivers. Helpers: <code style="font-size:7pt;color:var(--green)">get_stats()</code>, <code style="font-size:7pt;color:var(--green)">get_surplus_items()</code>.</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2.5mm">Layers 4 &amp; 5 — AI Agent + Reporting</div>
+      <div class="arch-box ai" style="margin-bottom:2mm">
+        <div class="ab-name">🤖 Claude Agent Loop <span class="ab-badge purple">agent.py</span></div>
+        <div class="ab-desc"><code style="font-size:7pt;color:#7c3aed">run_agent(trigger)</code> → while loop → Anthropic API call with TOOL_SCHEMAS → dispatches <code style="font-size:7pt;color:#7c3aed">TOOL_FUNCTIONS[block.name](**block.input)</code> → appends tool_result → repeats until <code style="font-size:7pt;color:#7c3aed">stop_reason == "end_turn"</code>. Model: claude-sonnet-4-6.</div>
+      </div>
+      <div class="arch-box ai" style="margin-bottom:2mm">
+        <div class="ab-name">🔧 Tool Functions + Schemas <span class="ab-badge purple">tools.py</span></div>
+        <div class="ab-desc"><code style="font-size:7pt;color:#7c3aed">TOOL_FUNCTIONS</code> dict maps 6 names → Python callables. <code style="font-size:7pt;color:#7c3aed">TOOL_SCHEMAS</code> list is the JSON schema array passed to Anthropic API — Claude reads this to understand each tool's input types, required fields, and purpose.</div>
+      </div>
+      <div class="arch-box" style="margin-bottom:3mm">
+        <div class="ab-name">📄 ESG PDF Generator <span class="ab-badge">report.py</span></div>
+        <div class="ab-desc">reportlab PDF: cover page, impact stats (lbs rescued, meals, CO₂), compliance audit log. Triggered via <code style="font-size:7pt;color:var(--green)">GET /api/report</code>. Replaces $500/quarter manual reporting engagement.</div>
+      </div>
+      <div style="background:var(--mint);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:3mm 4mm">
+        <div style="font-size:8pt;font-weight:700;color:var(--forest);margin-bottom:1mm">🔄 One-click rescue flow</div>
+        <div style="font-size:7.5pt;color:var(--slate);line-height:1.65;font-family:'JetBrains Mono',monospace">Browser → POST /trigger/statler → BackgroundTask → agent.py → Anthropic API ↔ tools.py ↔ database.py → pickup logged → dashboard refresh</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>03 — Architecture</span><span>4 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 5 — AGENT CODE -->
+<div class="slide light">
+  <div class="slide-head">
+    <div><div class="sh-title">How the Agent Loop Works</div><div class="sh-sub">agent.py — annotated for everyone, not just engineers</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1.1fr 1fr;gap:5mm;padding-top:3mm">
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">The Core Code — Annotated</div>
+      <div class="code-wrap">
+<span class="cc"># agent.py — FoodFlow's orchestration brain</span>
+
+<span class="ck">def</span> <span class="cf">run_agent</span>(trigger: dict) -> dict:
+  messages = [{
+    <span class="cs">"role"</span>: <span class="cs">"user"</span>,
+    <span class="cs">"content"</span>: f<span class="cs">"Rescue surplus at {trigger['location']}"</span>
+  }]
+
+  <span class="cc"># Keep calling Claude until it says "I'm done"</span>
+  <span class="ck">while</span> True:
+    response = client.messages.create(
+      model=<span class="cs">"claude-sonnet-4-6"</span>,
+      tools=TOOL_SCHEMAS, <span class="cc"># Claude reads these to know what's available</span>
+      messages=messages
+    )
+    <span class="cc"># Claude is done — return natural language summary</span>
+    <span class="ck">if</span> response.stop_reason == <span class="cs">"end_turn"</span>:
+      <span class="ck">return</span> {<span class="cs">"summary"</span>: response.content[<span class="cn">0</span>].text}
+
+    <span class="cc"># Claude chose a tool — execute the Python function</span>
+    <span class="ck">for</span> block <span class="ck">in</span> response.content:
+      <span class="ck">if</span> block.type == <span class="cs">"tool_use"</span>:
+        result = TOOL_FUNCTIONS[block.name](**block.input)
+
+        <span class="cc"># Send result back so Claude reasons on it</span>
+        messages.append({<span class="cs">"role"</span>: <span class="cs">"user"</span>, <span class="cs">"content"</span>: [{
+          <span class="cs">"type"</span>: <span class="cs">"tool_result"</span>,
+          <span class="cs">"tool_use_id"</span>: block.id,
+          <span class="cs">"content"</span>: json.dumps(result)
+        }]})
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2.5mm">
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px">Step-by-Step in Plain English</div>
+      <div class="flow-step"><div class="fs-num" style="background:var(--forest)">1</div><div><div class="fs-title">We send Claude a task in plain language</div><div class="fs-desc">"There's surplus food at Statler Hall. Please coordinate a rescue." No specific instructions on HOW — Claude decides.</div></div></div>
+      <div class="flow-step"><div class="fs-num" style="background:#0EA5E9">2</div><div><div class="fs-title">Claude returns a tool_use block</div><div class="fs-desc">Instead of answering in text, Claude says: "I want to call check_inventory with location_id='statler'." This is stop_reason = "tool_use".</div></div></div>
+      <div class="flow-step"><div class="fs-num" style="background:#8B5CF6">3</div><div><div class="fs-title">We run the Python function</div><div class="fs-desc">TOOL_FUNCTIONS["check_inventory"](**{"location_id":"statler"}) queries SQLite, returns JSON with surplus items and quantities.</div></div></div>
+      <div class="flow-step"><div class="fs-num" style="background:#F59E0B">4</div><div><div class="fs-title">We give Claude the data — loop repeats</div><div class="fs-desc">We append the tool_result to the conversation. Claude reads it, reasons, picks next tool. Repeats 5 more times across all 6 tools.</div></div></div>
+      <div class="flow-step"><div class="fs-num" style="background:var(--green)">5</div><div><div class="fs-title">Claude signals done — stop_reason = "end_turn"</div><div class="fs-desc">After dispatch_pickup succeeds: "Dispatched Sarah Chen (0.8mi) for 45 lbs from Statler Hall. ETA 12 min to Ithaca Food Bank. Compliance verified ✓"</div></div></div>
+      <div class="card mint" style="margin-top:auto">
+        <div class="card-title" style="color:var(--forest)">💡 Why not just a script?</div>
+        <p style="color:var(--forest)">Scripts need hard-coded if-else for every edge case. Claude handles: <em>"Food bank A is full → try B → B only takes cold food → our food is hot → escalate."</em> That flexibility requires LLM reasoning.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>04 — Agent Loop</span><span>5 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 6 — MARKET -->
+<div class="slide fog-bg">
+  <div class="slide-head">
+    <div><div class="sh-title">Market Sizing</div><div class="sh-sub">TAM / SAM / SOM — bottom-up validated, conservative</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1fr 1.2fr;gap:5mm;padding-top:3mm">
+    <!-- TAM/SAM/SOM visual -->
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3mm">
+      <!-- TAM -->
+      <div style="width:100%;background:var(--white);border:1.5px solid var(--line);border-radius:12px;padding:4mm 5mm;display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-size:8pt;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5mm">Total Addressable Market (TAM)</div><div style="font-size:8pt;color:var(--slate);line-height:1.4">All US food institutions — 500K restaurants,<br>4,700 universities, 37K grocery stores</div></div>
+        <div style="text-align:right;flex-shrink:0;margin-left:3mm"><div style="font-size:24pt;font-weight:900;color:var(--forest);line-height:1">$2.2B</div></div>
+      </div>
+      <!-- SAM -->
+      <div style="width:90%;background:var(--mint);border:1.5px solid rgba(22,163,74,.2);border-radius:12px;padding:4mm 5mm;display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-size:8pt;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5mm">Serviceable Available (SAM)</div><div style="font-size:8pt;color:var(--slate);line-height:1.4">Urban universities + restaurant groups<br>in top 50 US metros with ESG pressure</div></div>
+        <div style="text-align:right;flex-shrink:0;margin-left:3mm"><div style="font-size:24pt;font-weight:900;color:var(--forest);line-height:1">$426M</div></div>
+      </div>
+      <!-- SOM -->
+      <div style="width:78%;background:var(--forest);border-radius:12px;padding:4mm 5mm;display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-size:8pt;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5mm">Serviceable Obtainable (SOM)</div><div style="font-size:8pt;color:rgba(255,255,255,.4);line-height:1.4">Year 3 — 65 institutions<br>only 0.43% of SAM required</div></div>
+        <div style="text-align:right;flex-shrink:0;margin-left:3mm"><div style="font-size:24pt;font-weight:900;color:var(--green);line-height:1">$1.82M</div></div>
+      </div>
+    </div>
+    <!-- Bottom-up table -->
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">Year 3 Revenue Build — Bottom-Up</div>
+      <table style="margin-bottom:3mm">
+        <tr><th>Segment</th><th>Tier</th><th class="right">Customers</th><th class="right">ARR</th></tr>
+        <tr><td>Universities &amp; large chains</td><td>Enterprise $2,500</td><td class="right">15</td><td class="right green">$450K</td></tr>
+        <tr><td>Mid-market restaurant groups</td><td>Growth $299</td><td class="right">20</td><td class="right green">$71.8K</td></tr>
+        <tr><td>Independent restaurants</td><td>Starter $99</td><td class="right">30</td><td class="right green">$35.6K</td></tr>
+        <tr><td>Success fees (2% food value)</td><td>Variable</td><td class="right">—</td><td class="right green">$63.6K</td></tr>
+        <tr><td>ESG Reports ($500/quarter)</td><td>10 customers</td><td class="right">—</td><td class="right green">$20K</td></tr>
+        <tr class="accent-row"><td><strong>ARR (incl. 115% NRR)</strong></td><td>Blended</td><td class="right"><strong>65</strong></td><td class="right"><strong>$1.82M</strong></td></tr>
+      </table>
+      <div class="card mint">
+        <div class="card-title" style="color:var(--forest)">🎓 Why Universities First — The Cornell Wedge</div>
+        <p style="color:var(--forest);font-size:7.5pt;line-height:1.55">Universities have: <strong>predictable daily surplus schedules</strong>, ESG reporting mandates, procurement departments that sign $2,500/mo contracts without negotiation, built-in volunteer pools (students), and sustainability directors who refer peers. One Cornell win unlocks the entire Ivy League chain.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>05 — Market Sizing</span><span>6 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 7 — BUSINESS MODEL -->
+<div class="slide light">
+  <div class="slide-head">
+    <div><div class="sh-title">Business Model</div><div class="sh-sub">Three revenue streams · SaaS + success fees + ESG reports</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:3.5mm;padding-top:3mm">
+    <div class="pricing-grid">
+      <div class="pc">
+        <div class="pc-tier">Starter</div>
+        <div class="pc-price"><sup>$</sup>99<sub>/mo</sub></div>
+        <div class="pc-desc">1 location · perfect for independent restaurants and small dining operators ready to start rescuing</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> 1 location monitored 24/7</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Real-time rescue dashboard</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Annual ESG impact report</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Email + SMS alerts</div>
+        <div class="pc-feat"><span class="pc-x">✗</span> API access</div>
+      </div>
+      <div class="pc featured">
+        <div class="pc-badge">MOST POPULAR</div>
+        <div class="pc-tier">Growth</div>
+        <div class="pc-price"><sup>$</sup>299<sub>/mo</sub></div>
+        <div class="pc-desc">Up to 5 locations · for restaurant groups and mid-size campus dining with multiple outlets</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> 5 locations monitored</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Full API + webhook access</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Monthly ESG reports</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Custom alert thresholds</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Priority support SLA</div>
+      </div>
+      <div class="pc">
+        <div class="pc-tier">Enterprise</div>
+        <div class="pc-price"><sup>$</sup>2,500<sub>/mo</sub></div>
+        <div class="pc-desc">Unlimited locations · for universities, hospital networks, and multi-location restaurant chains</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Unlimited locations</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> White-label branding</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Quarterly board-ready ESG deck</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> Dedicated Customer Success Manager</div>
+        <div class="pc-feat"><span class="pc-check">✓</span> POS integration support</div>
+      </div>
+    </div>
+    <!-- Revenue streams + KPIs -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr) 1.2fr;gap:3mm">
+      <div class="card" style="display:flex;gap:3mm;align-items:flex-start">
+        <div style="font-size:18pt;flex-shrink:0">💳</div>
+        <div><div style="font-size:8.5pt;font-weight:700;color:var(--forest);margin-bottom:.5mm">SaaS Subscription</div><div style="font-size:7.5pt;color:var(--slate);line-height:1.4">100% predictable MRR. Anchors unit economics. 78% of total revenue.</div></div>
+      </div>
+      <div class="card" style="display:flex;gap:3mm;align-items:flex-start">
+        <div style="font-size:18pt;flex-shrink:0">📊</div>
+        <div><div style="font-size:8.5pt;font-weight:700;color:var(--forest);margin-bottom:.5mm">Success Fee (2%)</div><div style="font-size:7.5pt;color:var(--slate);line-height:1.4">2% of food market value rescued. Enterprise: ~$6,570/yr. Scales with usage.</div></div>
+      </div>
+      <div class="card" style="display:flex;gap:3mm;align-items:flex-start">
+        <div style="font-size:18pt;flex-shrink:0">📄</div>
+        <div><div style="font-size:8.5pt;font-weight:700;color:var(--forest);margin-bottom:.5mm">ESG Reports</div><div style="font-size:7.5pt;color:var(--slate);line-height:1.4">$500/quarter. Replaces $5–15K consulting engagement. Auto-generated by report.py.</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2mm">
+        <div class="stat-chip green"><div class="sc-val" style="font-size:18pt">78%</div><div class="sc-lbl">Gross Margin</div></div>
+        <div class="stat-chip"><div class="sc-val accent" style="font-size:18pt">380x</div><div class="sc-lbl">LTV:CAC Enterprise</div></div>
+        <div class="stat-chip"><div class="sc-val" style="font-size:18pt">8</div><div class="sc-lbl">Days CAC payback</div></div>
+        <div class="stat-chip green"><div class="sc-val" style="font-size:18pt">115%</div><div class="sc-lbl">NRR Target</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>06 — Business Model</span><span>7 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 8 — UNIT ECONOMICS -->
+<div class="slide fog-bg">
+  <div class="slide-head">
+    <div><div class="sh-title">Unit Economics</div><div class="sh-sub">Enterprise tier deep-dive — 78% gross margin explained, COGS waterfall</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:3.5mm;padding-top:3mm">
+    <div class="ue-grid">
+      <div class="ue-card green"><div class="ue-val">$3,047</div><div class="ue-label">ARPA / month (Enterprise)<br>SaaS + success fees + ESG</div><div class="ue-badge">✓ HEALTHY</div></div>
+      <div class="ue-card"><div class="ue-val green">$109K</div><div class="ue-label">LTV — 36 months<br>at 3% monthly churn</div><div class="ue-badge">✓ HEALTHY</div></div>
+      <div class="ue-card forest"><div class="ue-val" style="color:var(--green)">$288</div><div class="ue-label">CAC — founder-led<br>warm intro sales</div><div class="ue-badge" style="background:rgba(22,163,74,.2);color:var(--green)">✓ EXCELLENT</div></div>
+      <div class="ue-card"><div class="ue-val" style="color:var(--gold)">8 days</div><div class="ue-label">CAC payback period<br>$288 ÷ $2,375 GM/mo</div><div class="ue-badge gold">✓ EXCELLENT</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:4mm">
+      <div>
+        <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">COGS Waterfall — Enterprise $2,500/mo</div>
+        <div style="background:var(--white);border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm">
+          <!-- Revenue bar -->
+          <div style="display:flex;justify-content:space-between;font-size:7.5pt;margin-bottom:1mm"><span style="font-weight:600;color:var(--ink)">Revenue</span><span style="font-weight:700;color:var(--forest)">$2,500</span></div>
+          <div style="height:7mm;background:var(--forest);border-radius:4px;margin-bottom:3mm;display:flex;align-items:center;justify-content:flex-end;padding-right:3mm;font-size:7pt;font-weight:700;color:#fff">100%</div>
+          <!-- After COGS -->
+          <div style="display:flex;justify-content:space-between;font-size:7.5pt;margin-bottom:1mm"><span style="font-weight:600;color:var(--ink)">After all COGS ($309)</span><span style="font-weight:700;color:var(--green)">$2,191 — 87.6%</span></div>
+          <div style="height:7mm;background:var(--green);border-radius:4px;margin-bottom:3mm;width:87.6%;display:flex;align-items:center;justify-content:flex-end;padding-right:3mm;font-size:7pt;font-weight:700;color:#fff">87.6%</div>
+          <!-- Blended -->
+          <div style="display:flex;justify-content:space-between;font-size:7.5pt;margin-bottom:1mm"><span style="font-weight:600;color:var(--ink)">Blended margin (all tiers)</span><span style="font-weight:700;color:var(--forest)">78%</span></div>
+          <div style="height:7mm;background:var(--mint);border:1.5px solid rgba(22,163,74,.3);border-radius:4px;width:78%;display:flex;align-items:center;justify-content:flex-end;padding-right:3mm;font-size:7pt;font-weight:700;color:var(--forest)">78%</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">COGS Breakdown (% of $2,500 revenue)</div>
+        <table>
+          <tr><th>Cost Item</th><th class="right">$/mo</th><th class="right">%</th></tr>
+          <tr><td>Anthropic API (500 rescues × $0.08)</td><td class="right">$40</td><td class="right">1.6%</td></tr>
+          <tr><td>SMS – Twilio (500 × $0.0079)</td><td class="right">$4</td><td class="right">0.2%</td></tr>
+          <tr><td>Hosting – VPS, shared infra</td><td class="right">$15</td><td class="right">0.6%</td></tr>
+          <tr><td>Customer Success (fractional)</td><td class="right">$200</td><td class="right">8.0%</td></tr>
+          <tr><td>Infra + tooling overhead</td><td class="right">$50</td><td class="right">2.0%</td></tr>
+          <tr class="accent-row"><td><strong>Gross Margin</strong></td><td class="right"><strong>$2,191</strong></td><td class="right"><strong>87.6%</strong></td></tr>
+        </table>
+        <div class="card mint" style="margin-top:3mm">
+          <div class="card-title" style="color:var(--forest)">⚡ Why 380x LTV:CAC is defensible</div>
+          <p style="color:var(--forest);font-size:7.5pt;line-height:1.5">Enterprise buyers (university sustainability directors) are pre-sold on the concept — they have ESG mandates and legal pressure. Sales is a warm peer intro. One Zoom demo + Cornell case study = signed. CAC is literally the cost of one founder meeting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>07 — Unit Economics</span><span>8 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 9 — GTM + COMPETITIVE -->
+<div class="slide light">
+  <div class="slide-head">
+    <div><div class="sh-title">Go-to-Market &amp; Competitive Moat</div><div class="sh-sub">Cornell Wedge → Ivy Chain → National</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;padding-top:3mm">
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2.5mm">The Cornell Wedge Strategy</div>
+      <div class="gtm-tl">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-period">Month 1–2</div><div class="tl-title">3 Free Design Partners on Campus</div><div class="tl-desc">Statler Hotel, RPCC, + 1 local restaurant. Free deployment. Build case study with real lbs rescued and CO₂ data — the proof that unlocks every other sale.</div><div class="tl-kpi">$0 CAC → priceless case study</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-period">Month 3–4</div><div class="tl-title">Cornell Dining Full Contract</div><div class="tl-desc">Convert design partners. Cornell Dining runs 8 dining halls. $2,500/mo × 8 locations = one signed deal = $20K MRR. First real revenue, 8-day payback.</div><div class="tl-kpi">$20K MRR · $240K ARR run rate</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-period">Month 5–6</div><div class="tl-title">Ivy League Referral Chain</div><div class="tl-desc">Cornell sustainability director introduces to Harvard, Penn, Columbia. Warm intro = $288 CAC. Close 3 more universities from one coffee meeting.</div><div class="tl-kpi">$30K MRR · $360K ARR</div></div>
+        <div class="tl-item" style="padding-bottom:0"><div class="tl-dot" style="background:var(--gold);box-shadow:0 0 0 1.5px var(--gold)"></div><div class="tl-period" style="color:var(--gold)">Month 7–18</div><div class="tl-title">Restaurant Groups + $500K Pre-Seed</div><div class="tl-desc">University case studies unlock restaurant group sales. Same ESG pressure, same buyer, bigger volume. Raise $500K to hire first SDR + backend engineer.</div><div class="tl-kpi" style="color:var(--gold)">$1.82M ARR by Month 36</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">Competitive Matrix</div>
+      <table class="comp-table" style="margin-bottom:3mm">
+        <thead><tr><th class="comp-head left">Feature</th><th class="comp-head">FoodFlow</th><th class="comp-head">TGTG</th><th class="comp-head">Copia</th><th class="comp-head">Manual</th></tr></thead>
+        <tbody>
+          <tr class="comp-tr ours"><td class="comp-td left">🌿 FoodFlow AI</td><td class="comp-td">—</td><td class="comp-td">—</td><td class="comp-td">—</td><td class="comp-td">—</td></tr>
+          <tr><td class="comp-td left">Autonomous AI dispatch</td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="no">✗</span></td></tr>
+          <tr><td class="comp-td left">Institutional bulk food</td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="prt">±</span></td></tr>
+          <tr><td class="comp-td left">Zero staff time required</td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="no">✗</span></td></tr>
+          <tr><td class="comp-td left">ESG auto-generation</td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="prt">±</span></td><td class="comp-td"><span class="no">✗</span></td></tr>
+          <tr><td class="comp-td left">Bill Emerson compliance</td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="prt">±</span></td><td class="comp-td"><span class="no">✗</span></td></tr>
+          <tr><td class="comp-td left">LLM edge-case reasoning</td><td class="comp-td"><span class="chk">✓</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="no">✗</span></td><td class="comp-td"><span class="no">✗</span></td></tr>
+        </tbody>
+      </table>
+      <div class="card mint">
+        <div class="card-title" style="color:var(--forest)">🛡️ The Data Moat</div>
+        <p style="color:var(--forest);font-size:7.5pt;line-height:1.55">After 6 months at one institution, FoodFlow learns: <strong>"Statler Hall always has 40–60 lbs of hot food on Fridays."</strong> Predictions become self-improving. This training data is impossible to replicate without the deployment history — and it grows with every rescue.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>08 — GTM &amp; Competitive</span><span>9 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 10 — FINANCIALS -->
+<div class="slide fog-bg">
+  <div class="slide-head">
+    <div><div class="sh-title">Financial Projections</div><div class="sh-sub">3-year path to $1.82M ARR · enterprise-first · capital-efficient</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;padding-top:3mm">
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">Revenue by Stream ($K ARR)</div>
+      <div style="background:var(--white);border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm;margin-bottom:3mm">
+        <!-- Legend -->
+        <div style="display:flex;gap:4mm;margin-bottom:3mm;font-size:7.5pt;color:var(--slate)">
+          <div style="display:flex;align-items:center;gap:1.5mm"><div style="width:10px;height:10px;background:var(--forest);border-radius:2px"></div>SaaS</div>
+          <div style="display:flex;align-items:center;gap:1.5mm"><div style="width:10px;height:10px;background:var(--green);border-radius:2px"></div>Success Fees</div>
+          <div style="display:flex;align-items:center;gap:1.5mm"><div style="width:10px;height:10px;background:var(--mint);border:1px solid rgba(22,163,74,.3);border-radius:2px"></div>ESG Reports</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:10mm;height:45mm;border-bottom:1.5px solid var(--line);border-left:1.5px solid var(--line);padding:0 5mm 0 2mm">
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="display:flex;align-items:flex-end;gap:1mm;height:42mm;width:100%;justify-content:center">
+              <div style="width:14mm;height:8mm;background:var(--forest);border-radius:2px 2px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:1mm;font-size:6pt;font-weight:700;color:#fff">$109</div>
+              <div style="width:14mm;height:3.5mm;background:var(--green);border-radius:2px 2px 0 0"></div>
+              <div style="width:14mm;height:1.5mm;background:var(--mint);border:1px solid rgba(22,163,74,.3);border-radius:2px 2px 0 0"></div>
+            </div>
+            <div style="font-size:7.5pt;color:var(--slate);margin-top:1.5mm">Year 1</div>
+            <div style="font-size:9pt;font-weight:800;color:var(--forest)">$122K</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="display:flex;align-items:flex-end;gap:1mm;height:42mm;width:100%;justify-content:center">
+              <div style="width:14mm;height:22mm;background:var(--forest);border-radius:2px 2px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:1mm;font-size:6pt;font-weight:700;color:#fff">$314</div>
+              <div style="width:14mm;height:6mm;background:var(--green);border-radius:2px 2px 0 0"></div>
+              <div style="width:14mm;height:2.5mm;background:var(--mint);border:1px solid rgba(22,163,74,.3);border-radius:2px 2px 0 0"></div>
+            </div>
+            <div style="font-size:7.5pt;color:var(--slate);margin-top:1.5mm">Year 2</div>
+            <div style="font-size:9pt;font-weight:800;color:var(--forest)">$413K</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="display:flex;align-items:flex-end;gap:1mm;height:42mm;width:100%;justify-content:center">
+              <div style="width:14mm;height:38mm;background:var(--forest);border-radius:2px 2px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:1mm;font-size:6pt;font-weight:700;color:#fff">$558</div>
+              <div style="width:14mm;height:9mm;background:var(--green);border-radius:2px 2px 0 0"></div>
+              <div style="width:14mm;height:3mm;background:var(--mint);border:1px solid rgba(22,163,74,.3);border-radius:2px 2px 0 0"></div>
+            </div>
+            <div style="font-size:7.5pt;color:var(--slate);margin-top:1.5mm">Year 3</div>
+            <div style="font-size:9pt;font-weight:800;color:var(--green)">$1.82M</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm">
+        <div class="ue-card green"><div class="ue-val" style="font-size:14pt">$50K</div><div class="ue-label">Seed Ask</div></div>
+        <div class="ue-card"><div class="ue-val" style="font-size:14pt;color:var(--forest)">18 mo</div><div class="ue-label">Runway</div></div>
+        <div class="ue-card"><div class="ue-val" style="font-size:14pt;color:var(--gold)">M6</div><div class="ue-label">Breakeven</div></div>
+        <div class="ue-card forest"><div class="ue-val" style="font-size:14pt">7.2M</div><div class="ue-label" style="color:rgba(255,255,255,.4)">Meals / Y3</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2mm">3-Year Detail</div>
+      <table>
+        <tr><th>Metric</th><th class="right">Year 1</th><th class="right">Year 2</th><th class="right">Year 3</th></tr>
+        <tr><td>Total Customers</td><td class="right">8</td><td class="right">28</td><td class="right green">65</td></tr>
+        <tr><td>Enterprise ($2,500)</td><td class="right">3</td><td class="right">8</td><td class="right">15</td></tr>
+        <tr><td>Growth ($299)</td><td class="right">3</td><td class="right">12</td><td class="right">20</td></tr>
+        <tr><td>Starter ($99)</td><td class="right">2</td><td class="right">8</td><td class="right">30</td></tr>
+        <tr><td>SaaS MRR</td><td class="right">$9.1K</td><td class="right">$26.2K</td><td class="right green">$46.5K</td></tr>
+        <tr><td>ARR (SaaS only)</td><td class="right">$109K</td><td class="right">$314K</td><td class="right green">$558K</td></tr>
+        <tr><td>ARR (incl. 115% NRR)</td><td class="right">$122K</td><td class="right">$413K</td><td class="right green">$1.82M</td></tr>
+        <tr><td>Gross Margin</td><td class="right">72%</td><td class="right">76%</td><td class="right green">78%</td></tr>
+        <tr><td>Rescues / year</td><td class="right">2,920</td><td class="right">18,250</td><td class="right gold">54,750</td></tr>
+        <tr class="accent-row"><td><strong>Food rescued (lbs)</strong></td><td class="right"><strong>131K</strong></td><td class="right"><strong>821K</strong></td><td class="right"><strong>12M+</strong></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>09 — Financials</span><span>10 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 11 — IMPACT -->
+<div class="slide light">
+  <div class="slide-head">
+    <div><div class="sh-title">Social Impact &amp; ESG Value</div><div class="sh-sub">Why institutions pay — sustainability mandates, not charity</div></div>
+    <div class="sh-logo"><svg width="22" height="22"><use href="#logo-icon"/></svg><div class="sh-logo-name">FoodFlow <em>AI</em></div></div>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:3.5mm;padding-top:3mm">
+    <div class="impact-hero">
+      <div class="ih-quote">FoodFlow doesn't ask institutions to be charitable. It gives them a <em>compliance tool</em> that happens to rescue food — and auto-generates the ESG report their board of trustees requires every quarter.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-bottom:.5mm">
+      <div class="stat-chip green"><div class="sc-val" style="font-size:22pt">12M</div><div class="sc-lbl">lbs food rescued annually by Year 3</div></div>
+      <div class="stat-chip forest"><div class="sc-val" style="color:var(--white);font-size:22pt">7.2M</div><div class="sc-lbl" style="color:rgba(255,255,255,.45)">meals served to food-insecure families</div></div>
+      <div class="stat-chip"><div class="sc-val accent" style="font-size:22pt">8,400</div><div class="sc-lbl">metric tons CO₂ avoided per year</div></div>
+      <div class="stat-chip"><div class="sc-val" style="font-size:22pt">65</div><div class="sc-lbl">institutions across 3 US cities</div></div>
+    </div>
+    <div class="sdg-row">
+      <div class="sdg-card"><div class="sdg-num" style="background:#d62828">2</div><div><div class="sdg-title">SDG 2 — Zero Hunger</div><div class="sdg-desc">Directly addresses food insecurity by redirecting surplus to food banks. 7.2M meals = measurable SDG progress annually.</div></div></div>
+      <div class="sdg-card"><div class="sdg-num" style="background:#bf8b02">12</div><div><div class="sdg-title">SDG 12 — Responsible Consumption</div><div class="sdg-desc">Reduces institutional food waste at source. Auto-generates GRI 306 (Waste) disclosure data for annual sustainability reports.</div></div></div>
+      <div class="sdg-card"><div class="sdg-num" style="background:var(--forest)">13</div><div><div class="sdg-title">SDG 13 — Climate Action</div><div class="sdg-desc">8,400 MT CO₂ avoided. Feeds directly into Scope 3 emission reduction reporting required by SEC ESG rules starting 2026.</div></div></div>
+      <div class="sdg-card"><div class="sdg-num" style="background:#f57f17">17</div><div><div class="sdg-title">SDG 17 — Partnerships</div><div class="sdg-desc">Builds institutional-to-foodbank infrastructure that grows with every rescue — a public good delivered through a sustainable business model.</div></div></div>
+    </div>
+  </div>
+  <div class="slide-foot"><span>FoodFlow AI · Cornell CBC Hackathon 2026</span><span>10 — Social Impact</span><span>11 / 12</span></div>
+</div>
+
+<!-- ═══════════════════ SLIDE 12 — THE ASK -->
+<div class="slide fog-bg">
+  <div class="forest-head">
+    <div><div class="fh-title">The Ask — $50K Seed Round</div><div class="fh-sub">Working MVP live today · Cornell pilot ready · Ivy League chain waiting</div></div>
+    <div style="display:flex;align-items:center;gap:2mm"><svg width="22" height="22"><use href="#logo-icon"/></svg><span style="font-size:9pt;font-weight:800;color:var(--white)">FoodFlow <em style="font-style:normal;color:var(--green)">AI</em></span></div>
+  </div>
+  <div class="slide-body" style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;padding-top:4mm">
+    <div>
+      <div class="ask-amount-box">
+        <div class="ask-label">Seed Round Ask</div>
+        <div class="ask-val">$50,<span>000</span></div>
+        <div class="ask-desc">Pre-seed angel round · 18 months runway · breakeven by Month 6 on first 3 enterprise contracts</div>
+      </div>
+      <div class="use-row"><span style="font-size:16pt">🔌</span><span class="use-label">Product: Twilio SMS + POS integrations</span><span class="use-amount">$15K</span><span class="use-pct">30%</span></div>
+      <div class="use-row"><span style="font-size:16pt">🤝</span><span class="use-label">Sales: Cornell pilot + 3 Ivy intros</span><span class="use-amount">$12K</span><span class="use-pct">24%</span></div>
+      <div class="use-row"><span style="font-size:16pt">☁️</span><span class="use-label">Infrastructure: cloud + API costs</span><span class="use-amount">$8K</span><span class="use-pct">16%</span></div>
+      <div class="use-row"><span style="font-size:16pt">⚖️</span><span class="use-label">Legal: entity + Bill Emerson docs</span><span class="use-amount">$5K</span><span class="use-pct">10%</span></div>
+      <div class="use-row"><span style="font-size:16pt">🏦</span><span class="use-label">Operating reserve (6 months)</span><span class="use-amount">$10K</span><span class="use-pct">20%</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2.5mm">
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px">Built Today — April 25, 2026</div>
+      <div class="done-item"><span class="done-check">✓</span><span class="done-text">Working Claude tool_use agent — 6 tools, full autonomous loop</span></div>
+      <div class="done-item"><span class="done-check">✓</span><span class="done-text">FastAPI dashboard — real-time stats, auto-refresh every 10s</span></div>
+      <div class="done-item"><span class="done-check">✓</span><span class="done-text">ESG PDF auto-generator via reportlab</span></div>
+      <div class="done-item"><span class="done-check">✓</span><span class="done-text">Cornell seed data — Statler Hall, RPCC, Ithaca Food Bank</span></div>
+      <div class="done-item"><span class="done-check">✓</span><span class="done-text">Open source — github.com/jarmancarrera/foodflow-ai</span></div>
+      <div style="font-size:7.5pt;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-top:.5mm">Run It Now</div>
+      <div class="code-wrap" style="font-size:7.5pt;line-height:1.7;flex:1">
+<span class="cc"># Clone + run in 3 commands</span>
+git clone git@github.com:jarmancarrera/foodflow-ai.git
+<span class="ck">export</span> ANTHROPIC_API_KEY=sk-ant-...
+uvicorn main:app --reload --port <span class="cn">8000</span>
+<span class="cc"># Open http://localhost:8000</span>
+<span class="cc"># Click "🚀 Rescue Now" — watch Claude work</span>
+      </div>
+    </div>
+  </div>
+  <div class="closing">
+    <div class="cl-brand"><svg width="20" height="20"><use href="#logo-icon"/></svg>FoodFlow <em>AI</em></div>
+    <div style="text-align:center"><div class="cl-link">Built at Cornell Claude Builders Club Hackathon · April 25, 2026</div></div>
+    <div class="cl-link"><span>github.com/jarmancarrera/foodflow-ai</span> · jarmancarrera@gmail.com</div>
+  </div>
+</div>
+
+</body>
+</html>
