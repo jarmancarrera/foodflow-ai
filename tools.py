@@ -35,7 +35,15 @@ def check_foodbank_capacity(foodbank_id: str) -> dict:
     fb = next((f for f in foodbanks if f["id"] == foodbank_id), None)
     if not fb:
         return {"status": "not_found", "foodbank_id": foodbank_id}
-    return {"status": "accepting", "foodbank_id": foodbank_id, "foodbank_name": fb["name"], "capacity_lbs_available": 500, "lat": fb["lat"], "lng": fb["lng"]}
+    capacity = fb.get("capacity_lbs") or 500
+    return {
+        "status": "accepting",
+        "foodbank_id": foodbank_id,
+        "foodbank_name": fb["name"],
+        "capacity_lbs_available": float(capacity),
+        "lat": fb["lat"],
+        "lng": fb["lng"],
+    }
 
 def verify_compliance(food_type: str, donor_type: str) -> dict:
     return {
@@ -44,14 +52,25 @@ def verify_compliance(food_type: str, donor_type: str) -> dict:
         "liability": "Donor protected from civil and criminal liability when donating in good faith",
         "timestamp": datetime.now().isoformat(),
         "food_type": food_type,
-        "donor_type": donor_type
+        "donor_type": donor_type,
+        "notes": "Demo compliance check. Production version should validate temperature control, allergens, and local health code constraints.",
     }
 
-def dispatch_pickup(volunteer_id: str, volunteer_phone: str, supplier_id: str, supplier_name: str,
-                    foodbank_id: str, foodbank_name: str, item: str, quantity_lbs: float, pickup_time: str) -> dict:
+def dispatch_pickup(
+    volunteer_id: str,
+    volunteer_phone: str,
+    supplier_id: str,
+    supplier_name: str,
+    foodbank_id: str,
+    foodbank_name: str,
+    item: str,
+    quantity_lbs: float,
+    pickup_time: str,
+    rescue_id: "str | None" = None,
+) -> dict:
     sms_body = (f"🌿 FoodFlow: Pickup confirmed!\n📍 From: {supplier_name}\n"
                 f"🏦 To: {foodbank_name}\n📦 {quantity_lbs} lbs {item}\n⏰ Ready at: {pickup_time}")
-    log_pickup(supplier_id, foodbank_id, volunteer_id, item, quantity_lbs)
+    log_pickup(supplier_id, foodbank_id, volunteer_id, item, quantity_lbs, rescue_id=rescue_id)
     print(f"\n{'='*50}\n📱 SMS SENT to {volunteer_phone}:\n{sms_body}\n{'='*50}\n")
     return {"status": "dispatched", "volunteer_id": volunteer_id, "sms_sent": True,
             "sms_body": sms_body, "pickup_logged": True, "quantity_lbs": quantity_lbs, "item": item}
@@ -79,5 +98,5 @@ TOOL_SCHEMAS = [
     {"name": "calculate_route", "description": "Calculate driving distance and ETA between two points.", "input_schema": {"type": "object", "properties": {"origin_lat": {"type": "number"}, "origin_lng": {"type": "number"}, "dest_lat": {"type": "number"}, "dest_lng": {"type": "number"}}, "required": ["origin_lat", "origin_lng", "dest_lat", "dest_lng"]}},
     {"name": "check_foodbank_capacity", "description": "Check whether a food bank can accept a donation.", "input_schema": {"type": "object", "properties": {"foodbank_id": {"type": "string"}}, "required": ["foodbank_id"]}},
     {"name": "verify_compliance", "description": "Verify Bill Emerson Good Samaritan Act coverage.", "input_schema": {"type": "object", "properties": {"food_type": {"type": "string"}, "donor_type": {"type": "string"}}, "required": ["food_type", "donor_type"]}},
-    {"name": "dispatch_pickup", "description": "Dispatch volunteer and log pickup.", "input_schema": {"type": "object", "properties": {"volunteer_id": {"type": "string"}, "volunteer_phone": {"type": "string"}, "supplier_id": {"type": "string"}, "supplier_name": {"type": "string"}, "foodbank_id": {"type": "string"}, "foodbank_name": {"type": "string"}, "item": {"type": "string"}, "quantity_lbs": {"type": "number"}, "pickup_time": {"type": "string"}}, "required": ["volunteer_id","volunteer_phone","supplier_id","supplier_name","foodbank_id","foodbank_name","item","quantity_lbs","pickup_time"]}}
+    {"name": "dispatch_pickup", "description": "Dispatch volunteer and log pickup.", "input_schema": {"type": "object", "properties": {"volunteer_id": {"type": "string"}, "volunteer_phone": {"type": "string"}, "supplier_id": {"type": "string"}, "supplier_name": {"type": "string"}, "foodbank_id": {"type": "string"}, "foodbank_name": {"type": "string"}, "item": {"type": "string"}, "quantity_lbs": {"type": "number"}, "pickup_time": {"type": "string"}, "rescue_id": {"type": "string"}}, "required": ["volunteer_id","volunteer_phone","supplier_id","supplier_name","foodbank_id","foodbank_name","item","quantity_lbs","pickup_time"]}}
 ]

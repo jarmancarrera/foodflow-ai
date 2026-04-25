@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodFlow AI — Ops Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">🌿</div>
+    <div>
+      <div class="title">FoodFlow AI</div>
+      <div class="subtitle">Operations dashboard</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a class="link" href="/">Rescue Console</a>
+    <a class="link" href="/docs">API Docs</a>
+    <a class="link" href="/api/report">Download ESG PDF</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <h2>Ops Dashboard</h2>
+      <p class="muted">
+        Everything saved in <b>SQLite</b>: rescues, the full Claude trace, pickups, inventory, and volunteers.
+      </p>
+      <div class="pill-row">
+        <div class="pill"><b>DB:</b> foodflow.db</div>
+        <div class="pill"><b>Trace:</b> per rescue_id</div>
+        <div class="pill"><b>Tip:</b> click a rescue_id to inspect</div>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="k">Total rescues</div>
+        <div class="v">{{ rescues|length }}</div>
+        <div class="s">latest 100 shown</div>
+      </div>
+      <div class="kpi">
+        <div class="k">Pickups</div>
+        <div class="v">{{ pickups|length }}</div>
+        <div class="s">latest 200 shown</div>
+      </div>
+      <div class="kpi">
+        <div class="k">Food rescued</div>
+        <div class="v">{{ "%.0f"|format((pickups|sum(attribute='quantity_lbs')) if pickups else 0) }} lbs</div>
+        <div class="s">from pickups table</div>
+      </div>
+      <div class="kpi">
+        <div class="k">Available drivers</div>
+        <div class="v">{{ volunteers|selectattr('available')|list|length }}</div>
+        <div class="s">currently available</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Rescues (latest)</h3>
+    {% if selected and selected.rescue_id %}
+    <div class="two-col" style="margin-bottom:12px;">
+      <div class="card">
+        <div class="item">Selected rescue</div>
+        <div class="time">Rescue ID: <code>{{ selected.rescue_id }}</code></div>
+        <div class="time">Location: <b>{{ selected.location_name or selected.location_id }}</b></div>
+        <div class="time">Status:
+          {% if selected.status == 'completed' %}
+            <span class="badge ok">completed</span>
+          {% elif selected.status == 'running' %}
+            <span class="badge run">running</span>
+          {% elif selected.status == 'error' %}
+            <span class="badge err">error</span>
+          {% else %}
+            <span class="badge warn">{{ selected.status }}</span>
+          {% endif %}
+        </div>
+        <div class="time muted">Started: {{ selected.started_at }}</div>
+        <div class="time muted">Completed: {{ selected.completed_at or "-" }}</div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn" href="/api/rescues/{{ selected.rescue_id }}">View JSON</a>
+          <a class="btn" href="/ops">Clear selection</a>
+        </div>
+      </div>
+      {% if selected_result %}
+      <div class="card">
+        <div class="item">Claude summary</div>
+        {% if selected_result.final_message %}
+        <div class="time" style="margin-top:6px;color:#1b2434;line-height:1.4;">
+          {{ selected_result.final_message }}
+        </div>
+        {% else %}
+        <div class="time muted">No final_message saved yet.</div>
+        {% endif %}
+        {% if selected_result.steps %}
+        <div class="time" style="margin-top:10px;">Tool timeline</div>
+        <div class="step-list">
+          {% for s in selected_result.steps %}
+          <div class="step">
+            <div class="t">{{ loop.index }}. {{ s.tool }}</div>
+            <div class="d">{{ s.output }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>rescue_id</th>
+            <th>location</th>
+            <th>status</th>
+            <th>started</th>
+            <th>completed</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in rescues %}
+          <tr>
+            <td><a class="link" style="color:#0b1220;border-bottom-color:#cbd5e1" href="/ops?rescue_id={{ r.rescue_id }}"><code>{{ r.rescue_id }}</code></a></td>
+            <td>{{ r.location_name or r.location_id }}</td>
+            <td>
+              {% if r.status == 'completed' %}
+                <span class="badge ok">completed</span>
+              {% elif r.status == 'running' %}
+                <span class="badge run">running</span>
+              {% elif r.status == 'error' %}
+                <span class="badge err">error</span>
+              {% else %}
+                <span class="badge warn">{{ r.status }}</span>
+              {% endif %}
+            </td>
+            <td class="muted">{{ r.started_at }}</td>
+            <td class="muted">{{ r.completed_at or "-" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Pickups (latest)</h3>
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>rescue_id</th>
+            <th>from</th>
+            <th>to</th>
+            <th>driver</th>
+            <th>item</th>
+            <th>lbs</th>
+            <th>dispatched</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for p in pickups %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td><code>{{ p.rescue_id or "-" }}</code></td>
+            <td>{{ p.supplier_name or p.supplier_id }}</td>
+            <td>{{ p.foodbank_name or p.foodbank_id }}</td>
+            <td>{{ p.volunteer_name or p.volunteer_id }} <span class="muted">{{ p.volunteer_phone or "" }}</span></td>
+            <td>{{ p.item }}</td>
+            <td><b>{{ "%.1f"|format(p.quantity_lbs) }}</b></td>
+            <td class="muted">{{ p.dispatched_at }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Inventory (latest)</h3>
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>location</th>
+            <th>item</th>
+            <th>qty_lbs</th>
+            <th>predicted_surplus</th>
+            <th>available_at</th>
+            <th>created_at</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for i in inventory %}
+          <tr>
+            <td>{{ i.location_name }}</td>
+            <td>{{ i.item }}</td>
+            <td>{{ "%.1f"|format(i.quantity_lbs) }}</td>
+            <td><b>{{ "%.1f"|format(i.predicted_surplus) }}</b></td>
+            <td class="muted">{{ i.available_at }}</td>
+            <td class="muted">{{ i.created_at }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Volunteers</h3>
+    <div class="cards">
+      {% for v in volunteers %}
+      <div class="card">
+        <div class="item">{{ v.name }}</div>
+        <div class="loc">{{ v.phone }}</div>
+        <div class="time">ID: <code>{{ v.id }}</code></div>
+        <div class="time">Status: <b>{{ "available" if v.available else "busy" }}</b></div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+
+<footer>FoodFlow AI · Ops dashboard</footer>
+</body>
+</html>
+

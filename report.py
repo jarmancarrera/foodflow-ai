@@ -12,7 +12,8 @@ DARK  = colors.HexColor("#072a1a")
 
 def generate_esg_report() -> str:
     stats = get_stats()
-    out_path = str(Path(__file__).parent / "FoodFlow_ESG_Report.pdf")
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_path = str(Path(__file__).parent / f"FoodFlow_ESG_Report_{stamp}.pdf")
     doc = SimpleDocTemplate(out_path, pagesize=letter,
                             leftMargin=0.85*inch, rightMargin=0.85*inch,
                             topMargin=0.85*inch, bottomMargin=0.85*inch)

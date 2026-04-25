@@ -2,38 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FoodFlow AI — Live Dashboard</title>
+  <title>FoodFlow AI — Rescue Console</title>
   <link rel="stylesheet" href="/static/style.css">
-  <meta http-equiv="refresh" content="10">
 </head>
 <body>
 <header>
-  <span style="font-size:24px">🌿</span>
-  <h1>Food<span>Flow</span> AI</h1>
-  <span style="margin-left:auto;font-size:13px;color:#86efac;">Live Dashboard · Cornell CBC 2026</span>
+  <div class="brand">
+    <div class="logo">🌿</div>
+    <div>
+      <div class="title">FoodFlow AI</div>
+      <div class="subtitle">Autonomous food rescue (demo)</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a class="link" href="/docs">API Docs</a>
+    <a class="link" href="/api/report">Download ESG PDF</a>
+  </div>
 </header>
 
-<div class="stats">
-  <div class="stat">
-    <div class="num">{{ stats.total_pickups }}</div>
-    <div class="label">Rescues completed</div>
-  </div>
-  <div class="stat">
-    <div class="num">{{ "%.0f"|format(stats.total_lbs) }} lbs</div>
-    <div class="label">Food rescued</div>
-  </div>
-  <div class="stat">
-    <div class="num">{{ "%.0f"|format(stats.total_meals) }}</div>
-    <div class="label">Meals served</div>
-  </div>
-  <div class="stat">
-    <div class="num">{{ "%.1f"|format(stats.total_co2_kg) }} kg</div>
-    <div class="label">CO₂ avoided</div>
-  </div>
-</div>
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <h2>Rescue surplus food in under 30 seconds</h2>
+      <p class="muted">
+        Choose an alert below. When you click <b>Trigger AI Rescue</b>, FoodFlow runs a 6-step loop:
+        inventory → food bank → driver → route → compliance → dispatch.
+      </p>
+      <div class="pill-row">
+        <div class="pill"><b>Demo mode:</b> always works (no timeouts)</div>
+        <div class="pill"><b>Trace:</b> saved to the database</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="stats">
+        <div class="stat">
+          <div class="num">{{ stats.total_pickups }}</div>
+          <div class="label">rescues completed</div>
+        </div>
+        <div class="stat">
+          <div class="num">{{ "%.0f"|format(stats.total_lbs) }} lbs</div>
+          <div class="label">food rescued</div>
+        </div>
+        <div class="stat">
+          <div class="num">{{ "%.0f"|format(stats.total_meals) }}</div>
+          <div class="label">meals served</div>
+        </div>
+        <div class="stat">
+          <div class="num">{{ "%.1f"|format(stats.total_co2_kg) }} kg</div>
+          <div class="label">CO₂ avoided</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<div class="section">
-  <h2>🚨 Active Surplus Alerts</h2>
+  <section class="section">
+  <h3>Active Surplus Alerts</h3>
   {% if surplus %}
   <div class="cards">
     {% for item in surplus %}
@@ -43,9 +66,9 @@
       <div class="lbs">{{ item.predicted_surplus }} lbs predicted</div>
       <div class="time">⏰ Available at {{ item.available_at }}</div>
       <button class="trigger-btn"
-        onclick="this.textContent='🤖 Agent running...';this.disabled=true;
-                 fetch('/api/trigger/{{ item.location_id }}',{method:'POST'});">
-        🤖 Trigger AI Rescue
+        onclick="this.textContent='Running…';this.disabled=true;
+                 window.foodflowTrigger('{{ item.location_id }}', this);">
+        Trigger AI Rescue
       </button>
     </div>
     {% endfor %}
@@ -53,24 +76,93 @@
   {% else %}
   <div class="alert">No active surplus alerts.</div>
   {% endif %}
-</div>
+  </section>
 
-<div class="section">
-  <h2>📊 Reports & API</h2>
-  <div class="cards">
-    <div class="card">
-      <div class="item">ESG Impact Report</div>
-      <div class="loc">Auto-generated PDF with all rescue data</div>
-      <a href="/api/report"><button class="trigger-btn">⬇ Download PDF Report</button></a>
+  <section class="section">
+  <h3>Last Rescue (Agent Trace)</h3>
+  {% if last_rescue and last_rescue.rescue_id %}
+    <div class="cards">
+      <div class="card">
+        <div class="item">Rescue ID: {{ last_rescue.rescue_id }}</div>
+        <div class="loc">📍 {{ last_rescue.location_name or last_rescue.location_id }}</div>
+        <div class="lbs">Status: <b id="rescueStatus">{{ last_rescue.status }}</b></div>
+        <div class="time">Started: {{ last_rescue.started_at }}</div>
+        {% if last_rescue.completed_at %}
+        <div class="time">Completed: {{ last_rescue.completed_at }}</div>
+        {% endif %}
+      </div>
+      {% if last_result %}
+      <div class="card">
+        <div class="item">What the AI decided</div>
+        <div class="loc">Backend: <span id="rescueBackend">{{ last_result.backend or "unknown" }}</span></div>
+        {% if last_result.final_message %}
+        <div class="time" style="margin-top:8px;color:#1b2434;line-height:1.4;">
+          {{ last_result.final_message }}
+        </div>
+        {% endif %}
+        {% if last_result.dispatch %}
+        <div class="lbs" style="margin-top:10px;">Dispatch: <b>{{ last_result.dispatch.status }}</b></div>
+        {% endif %}
+        {% if last_result.error %}
+        <div class="time">Error: <span id="rescueError">{{ last_result.error }}</span></div>
+        {% endif %}
+        {% if last_result.steps %}
+        <div class="time">Tools called: {{ last_result.steps|length }}</div>
+        <pre id="rescueSteps" style="white-space:pre-wrap;font-size:12px;line-height:1.3;max-height:220px;overflow:auto;border:1px solid #134e4a;padding:10px;border-radius:10px;background:#052e1c;color:#dcfce7;">{% for s in last_result.steps %}
+{{ loop.index }}. {{ s.tool }} → {{ s.output }}
+{% endfor %}</pre>
+        {% else %}
+        <div class="time">No tool steps recorded yet.</div>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
-    <div class="card">
-      <div class="item">API Documentation</div>
-      <div class="loc">Live JSON endpoints for POS integration</div>
-      <a href="/docs"><button class="trigger-btn">📖 View API Docs</button></a>
-    </div>
-  </div>
-</div>
+  {% else %}
+    <div class="alert">No rescues yet. Trigger an alert above to run the agent.</div>
+  {% endif %}
+  </section>
+</main>
 
-<footer>FoodFlow AI · Powered by Claude claude-sonnet-4-6 · Cornell CBC 2026</footer>
+<footer>FoodFlow AI · Demo console</footer>
+<script>
+  window.DEMO_TOKEN = "{{ demo_token or '' }}";
+  window.foodflowTrigger = async (locationId, btn) => {
+    try {
+      const res = await fetch(`/api/trigger/${locationId}`, {
+        method: 'POST',
+        headers: window.DEMO_TOKEN ? { 'x-demo-token': window.DEMO_TOKEN } : {}
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        btn.textContent = 'Error';
+        btn.disabled = false;
+        alert(data.error || 'Failed to trigger rescue');
+        return;
+      }
+      const rescueId = data.rescue_id;
+      // Poll rescue status so the user sees progress.
+      const poll = async () => {
+        const r = await fetch(`/api/rescues/${rescueId}`);
+        if (!r.ok) return;
+        const rescue = await r.json();
+        const statusEl = document.getElementById('rescueStatus');
+        if (statusEl) statusEl.textContent = rescue.status;
+        if (rescue.status === 'completed' || rescue.status === 'error' || rescue.status === 'timeout') {
+          btn.textContent = 'Trigger AI Rescue';
+          btn.disabled = false;
+          // Hard refresh to load parsed steps/result_json into the template.
+          window.location.reload();
+          return;
+        }
+        setTimeout(poll, 1500);
+      };
+      setTimeout(poll, 800);
+    } catch (e) {
+      btn.textContent = 'Error';
+      btn.disabled = false;
+      alert(String(e));
+    }
+  };
+</script>
 </body>
 </html>
