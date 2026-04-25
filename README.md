@@ -37,8 +37,8 @@ xychart-beta
   title "Ejemplo conceptual: ARR por campus (rangos)"
   x-axis ["10 sitios","25 sitios","46 sitios"]
   y-axis "ARR (USD)" 0 --> 1200000
-  bar ["$500/mes"] [60000,150000,276000]
-  bar ["$2,000/mes"] [240000,600000,1104000]
+  bar "$500/mes" [60000,150000,276000]
+  bar "$2,000/mes" [240000,600000,1104000]
 ```
 
 > Nota: esto es un gráfico conceptual de pricing. El repo implementa el MVP técnico (loop + DB + UI + PDF), no el billing.
