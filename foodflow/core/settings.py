@@ -1,5 +1,10 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env before any os.getenv defaults are evaluated
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env", override=True)
 
 
 @dataclass(frozen=True)
