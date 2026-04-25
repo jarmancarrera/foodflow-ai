@@ -79,7 +79,7 @@ def run_agent(trigger: dict) -> dict:
         try:
             response = client.messages.create(
                 model=os.getenv("FOODFLOW_ANTHROPIC_MODEL", "claude-sonnet-4-6"),
-                max_tokens=4096,
+                max_tokens=int(os.getenv("FOODFLOW_MAX_COMPLETION_TOKENS", "4096")),
                 system=SYSTEM_PROMPT,
                 tools=TOOL_SCHEMAS,
                 messages=messages

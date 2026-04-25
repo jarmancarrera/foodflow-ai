@@ -289,8 +289,8 @@ def get_stats():
         SELECT
             COUNT(*) as total_pickups,
             COALESCE(SUM(quantity_lbs),0) as total_lbs,
-            COALESCE(SUM(quantity_lbs)*0.6,0) as total_meals,
-            COALESCE(SUM(quantity_lbs)*0.154,0) as total_co2_kg
+            COALESCE(SUM(quantity_lbs)*0.817,0) as total_meals,
+            COALESCE(SUM(quantity_lbs)*1.134,0) as total_co2_kg
         FROM pickups WHERE status='dispatched'
     """).fetchone()
     conn.close()
