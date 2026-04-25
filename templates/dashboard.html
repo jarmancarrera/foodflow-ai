@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodFlow AI — Live Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <meta http-equiv="refresh" content="10">
+</head>
+<body>
+<header>
+  <span style="font-size:24px">🌿</span>
+  <h1>Food<span>Flow</span> AI</h1>
+  <span style="margin-left:auto;font-size:13px;color:#86efac;">Live Dashboard · Cornell CBC 2026</span>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <div class="num">{{ stats.total_pickups }}</div>
+    <div class="label">Rescues completed</div>
+  </div>
+  <div class="stat">
+    <div class="num">{{ "%.0f"|format(stats.total_lbs) }} lbs</div>
+    <div class="label">Food rescued</div>
+  </div>
+  <div class="stat">
+    <div class="num">{{ "%.0f"|format(stats.total_meals) }}</div>
+    <div class="label">Meals served</div>
+  </div>
+  <div class="stat">
+    <div class="num">{{ "%.1f"|format(stats.total_co2_kg) }} kg</div>
+    <div class="label">CO₂ avoided</div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🚨 Active Surplus Alerts</h2>
+  {% if surplus %}
+  <div class="cards">
+    {% for item in surplus %}
+    <div class="card">
+      <div class="item">{{ item.item }}</div>
+      <div class="loc">📍 {{ item.location_name }}</div>
+      <div class="lbs">{{ item.predicted_surplus }} lbs predicted</div>
+      <div class="time">⏰ Available at {{ item.available_at }}</div>
+      <button class="trigger-btn"
+        onclick="this.textContent='🤖 Agent running...';this.disabled=true;
+                 fetch('/api/trigger/{{ item.location_id }}',{method:'POST'});">
+        🤖 Trigger AI Rescue
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert">No active surplus alerts.</div>
+  {% endif %}
+</div>
+
+<div class="section">
+  <h2>📊 Reports & API</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="item">ESG Impact Report</div>
+      <div class="loc">Auto-generated PDF with all rescue data</div>
+      <a href="/api/report"><button class="trigger-btn">⬇ Download PDF Report</button></a>
+    </div>
+    <div class="card">
+      <div class="item">API Documentation</div>
+      <div class="loc">Live JSON endpoints for POS integration</div>
+      <a href="/docs"><button class="trigger-btn">📖 View API Docs</button></a>
+    </div>
+  </div>
+</div>
+
+<footer>FoodFlow AI · Powered by Claude claude-sonnet-4-6 · Cornell CBC 2026</footer>
+</body>
+</html>
