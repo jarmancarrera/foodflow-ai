@@ -511,24 +511,74 @@ function setStatus(el, cls, text, dot) {
   el.innerHTML = dot ? `<span class="run-dot" aria-hidden="true"></span>${text}` : text;
 }
 
+// ── Markdown → plain text ────────────────────────────────────────────────
+function cleanMarkdown(text) {
+  if (!text) return '';
+  const lines = text.split('\n').map(line => {
+    if (/\|/.test(line)) return null;                   // table rows
+    if (/^[-─=\s]{3,}$/.test(line.trim())) return null; // hr / ---
+    line = line.replace(/^#{1,4}\s*/, '');              // headings
+    line = line.replace(/\*\*(.*?)\*\*/g, '$1');        // bold
+    line = line.replace(/\*(.*?)\*/g, '$1');            // italic
+    line = line.replace(/`([^`]+)`/g, '$1');            // inline code
+    // strip emojis
+    line = line.replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+               .replace(/[\u{2600}-\u{27BF}]/gu, '')
+               .replace(/[\u{1F000}-\u{1F02F}]/gu, '');
+    line = line.replace(/^[\s\-\*•>]+/, '');            // leading bullets
+    return line.trim();
+  }).filter(l => l !== null && l !== '');
+  return lines.join('<br>');
+}
+
+// ── Step timer (visual progress during running) ──────────────────────────
+let _stepTimer = null;
+let _stepActive = 0;
+
+function startStepTimer() {
+  _stepActive = 0;
+  _markActive(_stepActive);
+  _stepTimer = setInterval(() => {
+    const items = document.querySelectorAll('#stepList .step-item');
+    if (_stepActive < items.length - 1) {
+      items[_stepActive].classList.remove('active');
+      items[_stepActive].classList.add('done');
+      _stepActive++;
+      _markActive(_stepActive);
+    }
+  }, 6800); // ~6.8 s/step → ~41 s total ≈ FOODFLOW_AGENT_MAX_SECONDS
+}
+
+function _markActive(i) {
+  const items = document.querySelectorAll('#stepList .step-item');
+  if (items[i]) {
+    items[i].classList.remove('waiting');
+    items[i].classList.add('active');
+  }
+}
+
+function stopStepTimer() {
+  if (_stepTimer) { clearInterval(_stepTimer); _stepTimer = null; }
+}
+
+// ── Render steps (animated stagger after completion) ─────────────────────
 function renderSteps(steps) {
   const list = document.getElementById('stepList');
   list.innerHTML = '';
   TOOLS.forEach((tool, i) => {
     const match = steps.find(s => s.tool === tool);
     const div = document.createElement('div');
-    div.className = 'step-item ' + (match ? 'done' : 'waiting');
-    if (match) div.style.animationDelay = `${i * 0.09}s`;
+    div.className = 'step-item waiting';
 
     let detail = DETAIL_LABELS[i];
     if (match && match.output) {
       const o = match.output;
-      if (tool === 'check_inventory') detail = `${o.total_lbs || ''}lbs surplus — ${(o.items||[]).length} item(s)`;
+      if (tool === 'check_inventory')        detail = `${o.total_lbs || ''}lbs surplus — ${(o.items||[]).length} item(s)`;
       else if (tool === 'check_foodbank_capacity') detail = `${o.foodbank_name || ''} — ${o.capacity_lbs_available || ''} lbs available`;
-      else if (tool === 'query_volunteers') detail = `${o.count || ''} volunteer(s) found nearby`;
-      else if (tool === 'calculate_route') detail = `${o.distance_miles || ''} mi — ETA ${o.eta_string || ''}`;
+      else if (tool === 'query_volunteers')  detail = `${o.count || ''} volunteer(s) found nearby`;
+      else if (tool === 'calculate_route')   detail = `${o.distance_miles || ''} mi — ETA ${o.eta_string || ''}`;
       else if (tool === 'verify_compliance') detail = o.compliant ? 'Compliant — Bill Emerson Act protected' : 'Non-compliant';
-      else if (tool === 'dispatch_pickup') detail = `${o.quantity_lbs || ''} lbs dispatched — volunteer ${o.volunteer_id || ''}`;
+      else if (tool === 'dispatch_pickup')   detail = `${o.quantity_lbs || ''} lbs dispatched — volunteer ${o.volunteer_id || ''}`;
     }
 
     div.innerHTML = `
@@ -538,6 +588,14 @@ function renderSteps(steps) {
         <div class="step-detail">${detail}</div>
       </div>`;
     list.appendChild(div);
+
+    // Animate each done step in sequentially
+    if (match) {
+      setTimeout(() => {
+        div.classList.remove('waiting');
+        div.classList.add('done');
+      }, i * 160 + 60);
+    }
   });
 }
 
@@ -555,8 +613,10 @@ function renderDispatch(dispatch) {
 function renderSummary(msg) {
   const el = document.getElementById('summaryBox');
   if (!msg) { el.classList.add('hidden'); return; }
+  const clean = cleanMarkdown(msg);
+  if (!clean) { el.classList.add('hidden'); return; }
   el.classList.remove('hidden');
-  el.innerHTML = `<div style="font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Claude summary</div>${msg}`;
+  el.innerHTML = `<div style="font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Claude Summary</div><div style="font-size:12px;line-height:1.7;color:rgba(255,255,255,.7)">${clean}</div>`;
 }
 
 function updateStats(stats) {
@@ -584,10 +644,11 @@ async function poll(rescueId, allBtns) {
       setStatus(ts, 'sb-run', 'Running', true);
       ra.classList.remove('hidden');
       setTimeout(() => poll(rescueId, allBtns), 1200);
-      return;
+      return; // keep timer running — it advances steps visually
     }
 
-    // Completed / error / timeout
+    // Completed / error / timeout — stop the visual progress timer
+    stopStepTimer();
     ra.classList.add('hidden');
     allBtns.forEach(b => { b.disabled = false; b.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Trigger AI Rescue'; });
     document.getElementById('emptyState').classList.add('hidden');
@@ -637,12 +698,11 @@ async function triggerRescue(locationId, itemName, btn) {
   document.getElementById('dispatchResult').classList.add('hidden');
   document.getElementById('emptyState').classList.add('hidden');
 
-  // Reset steps to waiting
+  // Reset steps to waiting, then start visual progress timer
+  stopStepTimer();
   renderSteps([]);
-  document.getElementById('stepList').querySelectorAll('.step-item').forEach((el, i) => {
-    el.className = 'step-item ' + (i === 0 ? 'active' : 'waiting');
-  });
   ra.classList.remove('hidden');
+  startStepTimer();
 
   try {
     const res = await fetch(`/api/trigger/${locationId}`, { method: 'POST', headers: headers() });
