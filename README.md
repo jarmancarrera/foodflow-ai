@@ -112,17 +112,17 @@ Abre `http://127.0.0.1:8000/`.
 
 ```mermaid
 flowchart LR
-  UI[Rescue Console<br/>/]
-  OPS[Ops Dashboard<br/>/ops]
-  PITCH[Pitch<br/>/pitch]
-  API[FastAPI<br/>foodflow/app/app.py]
-  AGENT[Agente Claude<br/>agent.py]
-  TOOLS[Herramientas<br/>tools.py]
-  DB[(SQLite<br/>foodflow.db)]
-  PDF[ESG PDF<br/>report.py]
+  UI["Rescue Console\n/"]
+  OPS["Ops Dashboard\n/ops"]
+  PITCH["Pitch\n/pitch"]
+  API["FastAPI\nfoodflow/app/app.py"]
+  AGENT["Agente Claude\nagent.py"]
+  TOOLS["Herramientas\ntools.py"]
+  DB[("SQLite\nfoodflow.db")]
+  PDF["ESG PDF\nreport.py"]
 
-  UI -->|POST /api/trigger/{location_id}| API
-  PITCH -->|POST /api/trigger/{location_id}| API
+  UI -->|"POST /api/trigger/:location_id"| API
+  PITCH -->|"POST /api/trigger/:location_id"| API
   API -->|Background task| AGENT
   AGENT -->|tool_use| TOOLS
   TOOLS --> DB
@@ -155,7 +155,7 @@ sequenceDiagram
   participant Tools as Tools (Python)
   participant DB as SQLite
 
-  Browser->>API: POST /api/trigger/{location_id}
+  Browser->>API: POST /api/trigger/:location_id
   API-->>Browser: {status: agent_started, rescue_id}
   API->>Agent: run_agent(trigger) (background)
 
