@@ -3,5 +3,6 @@ __pycache__/
 *.pyo
 .env
 foodflow.db
-FoodFlow_ESG_Report.pdf
+FoodFlow_ESG_Report*.pdf
 .DS_Store
+.venv/
